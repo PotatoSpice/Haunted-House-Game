@@ -15,7 +15,7 @@ public interface IMapReader {
     boolean loadMapFromJSON(String path);
 
     /**
-     * This method shall load from the MapModel instance the Rooms and their information into an UnorderedList containing instances of the RoomModel
+     * This method shall load from the MapModel instance the Rooms and their information into an UnorderedList containing instances of the RoomModel to be treated
      *
      * @param mapModel Loaded map instance in which the rooms shall be "extracted"
      * @return The List containing the Rooms and their information

@@ -6,7 +6,7 @@ public class RoomModel {
 
     private String roomname; //
     private int phantom; //
-    private ArrayUnorderedList<String> rommconections; //
+    private ArrayUnorderedList<String> roomconections; //
 
 
     /**
@@ -14,12 +14,12 @@ public class RoomModel {
      *
      * @param roomname Represents the Room Name
      * @param phantom Represents the Weight of the Edge.
-     * @param rommconections Connections: Have the names of the rooms to which connections exist
+     * @param roomconections Connections: Have the names of the rooms to which connections exist
      */
-    public RoomModel(String roomname, int phantom, ArrayUnorderedList<String> rommconections) {
+    public RoomModel(String roomname, int phantom, ArrayUnorderedList<String> roomconections) {
         this.roomname = roomname;
         this.phantom = phantom;
-        this.rommconections = rommconections;
+        this.roomconections = roomconections;
     }
 
     public String getRoomname() {
@@ -30,7 +30,7 @@ public class RoomModel {
         return phantom;
     }
 
-    public ArrayUnorderedList<String> getRommconections() {
-        return rommconections;
+    public ArrayUnorderedList<String> getRoomconections() {
+        return roomconections;
     }
 }
