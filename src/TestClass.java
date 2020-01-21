@@ -1,4 +1,4 @@
-import Controllers.MapReader;
+import controllers.MapReader;
 
 public class TestClass {
 
