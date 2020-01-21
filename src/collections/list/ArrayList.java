@@ -212,7 +212,6 @@ public class ArrayList<T> implements ListADT<T> {
     /**
      * Basic Iterator for this Collection elements.
      *
-     * @param <T> type generic variable
      */
     private class BasicIterator implements Iterator {
 
@@ -244,7 +243,6 @@ public class ArrayList<T> implements ListADT<T> {
 
             okToRemove = true;
             ++current;
-
             return list[current - 1];
         }
 

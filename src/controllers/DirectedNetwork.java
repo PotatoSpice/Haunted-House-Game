@@ -18,6 +18,28 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
         this.vertices = (T[])(new Object[DEFAULT_CAPACITY]);
     }
 
+    /** TODO: Criar entrada para o edificio
+     *
+     */
+    protected void addEntrance(){
+
+    }
+
+    /**
+     * TODO: Criar saída para o edíficio
+     */
+    protected void addExterior(){
+
+    }
+
+    protected boolean checkVertexExistence(T vertex){
+        for(int ix = 0; ix < numVertices; ix++){
+            if(vertices[ix].equals(vertex)){
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * @param vertex1 Vértice que contem o "fantasma" no seu room, ou seja, que terá o peso associado
@@ -30,7 +52,8 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
         int index2 = getIndex(vertex2);
         if(indexIsValid(index1) && indexIsValid(index2)) {
             adjMatrix[index1][index2] = weight;
-            adjMatrix[index2][index1] = 0;
+          //
+            //  adjMatrix[index2][index1] = 0;
             connectionMatrix[index1][index2]=true;
             connectionMatrix[index2][index1]=true;
         }
@@ -143,7 +166,7 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
         return numVertices;
     }
 
-    private int getIndex(T vertex) {
+    protected int getIndex(T vertex) {
         for (int i = 0; i < numVertices; i++)
             if (vertices[i].equals(vertex))
                 return i;
@@ -174,4 +197,70 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
         adjMatrix = largerAdjMatrix;
     }
 
+    public String testOnlyTOBEDELETED(){
+        return toString();
+    }
+
+    public String toString() {
+        if (numVertices == 0)
+            return "Graph is empty";
+
+        String result = new String("");
+
+        /** Print the adjacency Matrix */
+        result += "Adjacency Matrix\n";
+        result += "----------------\n";
+        result += "index\t";
+
+        for (int i = 0; i < numVertices; i++) {
+            result += "" + i;
+            if (i < 10)
+                result += " ";
+        }
+        result += "\n\n";
+
+        for (int i = 0; i < numVertices; i++) {
+            result += "" + i + "\t";
+
+            for (int j = 0; j < numVertices; j++) {
+              /*  if (adjMatrix[i][j] >= 0)
+                    result += "1 ";
+                else
+                    result += "-1 ";
+                    */
+                result += adjMatrix[i][j] + " ";
+            }
+
+
+
+                result += "\n";
+            }
+
+            /** Print the vertex values */
+            result += "\n\nVertex Values";
+            result += "\n-------------\n";
+            result += "index\tvalue\n\n";
+
+            for (int i = 0; i < numVertices; i++) {
+                result += "" + i + "\t";
+                result += vertices[i].toString() + "\n";
+            }
+
+            /** Print the weights of the edges */
+            result += "\n\nWeights of Edges";
+            result += "\n----------------\n";
+            result += "index\tweight\n\n";
+
+            for (int i = 0; i < numVertices; i++) {
+                for (int j = 0; j < numVertices; j++) {
+                    if (adjMatrix[i][j] >= 0) {
+                        result += i + " to " + j + "\t";
+                        result += adjMatrix[i][j] + "\n";
+                    }
+                }
+            }
+
+            result += "\n";
+            return result;
+        }
 }

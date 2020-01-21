@@ -9,10 +9,18 @@ import models.RoomModel;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Iterator;
 
 public class MapReader implements IMapReader {
 
     MapModel mapModel;
+    DirectedNetwork<String> mapNetwork = new DirectedNetwork<>();
+    ArrayUnorderedList<RoomModel> rooms = new ArrayUnorderedList<>();
+
+    public MapModel getMapModel(){
+        return this.mapModel;
+    }
+
 
     @Override
     public boolean loadMapFromJSON(String path) {
@@ -51,11 +59,44 @@ public class MapReader implements IMapReader {
     //Apercebi-me que isto pode ter sido um erro no meu raciocínio e poderá sofrer alterações
     @Override
     public ArrayUnorderedList loadRooms(MapModel mapModel) {
-        return null;
+        rooms = mapModel.getRooms();
+        //System.out.println("Load test 1:" +mapModel.getRooms());
+        return rooms;
     }
 
     @Override
     public NetworkADT loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels) {
-        return null;
+            ArrayUnorderedList<RoomModel> tempRoomModel = new ArrayUnorderedList<>();
+            Iterator iteratingRoom = rooms.iterator();
+            while(iteratingRoom.hasNext()){
+                RoomModel room = (RoomModel) iteratingRoom.next();
+                mapNetwork.addVertex(room.getRoomname());
+                //System.out.println("Load Test: "+room.getRoomname());
+                tempRoomModel.addToRear(room);
+            }
+
+            Iterator tempIteratingRoom = tempRoomModel.iterator();
+            while(tempIteratingRoom.hasNext()){
+                RoomModel toCompareModel = (RoomModel) tempIteratingRoom.next();
+                if(mapNetwork.checkVertexExistence(toCompareModel.getRoomname())){
+                    ArrayUnorderedList<String> connections = toCompareModel.getRoomconections();
+                    Iterator connectionIterator = connections.iterator();
+                    while(connectionIterator.hasNext()){
+                        String roomName = (String) connectionIterator.next();
+                        if(mapNetwork.checkVertexExistence(roomName)){
+                            mapNetwork.addEdge(toCompareModel.getRoomname(), roomName, toCompareModel.getPhantom());
+                            System.out.println("Load Test: "+toCompareModel.getPhantom());
+                        }
+                    }
+                }
+
+            }
+
+        return mapNetwork;
     }
+
+    public String testOnlyTOBEDELETED(){
+        return mapNetwork.testOnlyTOBEDELETED();
+    }
+
 }

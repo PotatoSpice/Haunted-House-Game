@@ -5,7 +5,9 @@ import collections.tree.adt.BinarySearchTreeADT;
 import collections.exceptions.ElementNotFoundException;
 
 public class OrderedBinaryTreeAVL<T> extends LinkedBinaryTree<T> implements BinarySearchTreeADT<T> {
-    
+
+    private AVLBinaryTreeNode<T> genericnode;
+
     public OrderedBinaryTreeAVL() {
         super();
     }
@@ -185,12 +187,12 @@ public class OrderedBinaryTreeAVL<T> extends LinkedBinaryTree<T> implements Bina
     public T findMin() {
         T result = null;
         AVLBinaryTreeNode<T> node = (AVLBinaryTreeNode<T>) this.root;
-        if(root.getElement()!=null) {
-            while (node.leftchild() != null) {
-                node=node.leftchild();
+        if(root.element!=null) {
+            while (node.left != null) {
+                node=node.left;
             }
             setANode(node);
-            result = node.getElement();
+            result = node.element;
        /*     if(node.isInternal())
                 node = node.right; */
 
@@ -202,12 +204,12 @@ public class OrderedBinaryTreeAVL<T> extends LinkedBinaryTree<T> implements Bina
     public T findMax() {
         T result = null;
         AVLBinaryTreeNode<T> node = (AVLBinaryTreeNode<T>) this.root;
-        if(root.getElement()!=null) {
+        if(root.element!=null) {
             while (node.right != null) {
                 node=node.right;
             }
             setANode(node);
-            result = node.getElement();
+            result = node.element;
        /*     if(node.isInternal())
                 node = node.right; */
 
