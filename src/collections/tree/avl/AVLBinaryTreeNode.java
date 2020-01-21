@@ -1,6 +1,8 @@
 package collections.tree.avl;
 
-public class AVLBinaryTreeNode<T> {
+import collections.tree.BinaryTreeNode;
+
+public class AVLBinaryTreeNode<T> extends BinaryTreeNode<T> {
 
     protected int height = 0;
     protected int balance = 0;
@@ -13,6 +15,7 @@ public class AVLBinaryTreeNode<T> {
      * @param obj the element that will become a part of the new tree node
      */
     AVLBinaryTreeNode(T obj) {
+        super(obj);
         element = obj;
         left = null;
         right = null;
