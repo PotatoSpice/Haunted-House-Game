@@ -21,7 +21,6 @@ public class MapReader implements IMapReader {
         return this.mapModel;
     }
 
-
     @Override
     public boolean loadMapFromJSON(String path) {
 
@@ -68,12 +67,14 @@ public class MapReader implements IMapReader {
     public NetworkADT loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels) {
             ArrayUnorderedList<RoomModel> tempRoomModel = new ArrayUnorderedList<>();
             Iterator iteratingRoom = rooms.iterator();
+            mapNetwork.addEntrance();
             while(iteratingRoom.hasNext()){
                 RoomModel room = (RoomModel) iteratingRoom.next();
                 mapNetwork.addVertex(room.getRoomname());
                 //System.out.println("Load Test: "+room.getRoomname());
                 tempRoomModel.addToRear(room);
             }
+            mapNetwork.addExterior();
 
             Iterator tempIteratingRoom = tempRoomModel.iterator();
             while(tempIteratingRoom.hasNext()){
@@ -83,9 +84,13 @@ public class MapReader implements IMapReader {
                     Iterator connectionIterator = connections.iterator();
                     while(connectionIterator.hasNext()){
                         String roomName = (String) connectionIterator.next();
-                        if(mapNetwork.checkVertexExistence(roomName)){
+                        if(mapNetwork.checkVertexExistence(roomName) && !roomName.equals("entrada") && !roomName.equals("exterior")){
                             mapNetwork.addEdge(toCompareModel.getRoomname(), roomName, toCompareModel.getPhantom());
-                            System.out.println("Load Test: "+toCompareModel.getPhantom());
+                           // System.out.println("Load Test: "+toCompareModel.getPhantom());
+                        }else if(roomName.equals("entrada")){
+                            mapNetwork.addEntranceEdge(toCompareModel.getRoomname(), toCompareModel.getPhantom());
+                        }else if (roomName.equals("exterior")){
+                            mapNetwork.addExteriorEdge(toCompareModel.getRoomname());
                         }
                     }
                 }
