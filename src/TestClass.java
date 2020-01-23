@@ -10,6 +10,7 @@ public class TestClass {
         mapReader.loadRooms(mapReader.getMapModel());
         mapReader.loadGraphWithRoom(mapReader.getMapModel().getRooms());
         System.out.println(mapReader.testOnlyTOBEDELETED());
+        mapReader.printDjisktra();
 
     }
 

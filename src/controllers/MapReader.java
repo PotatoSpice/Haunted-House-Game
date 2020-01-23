@@ -104,4 +104,8 @@ public class MapReader implements IMapReader {
         return mapNetwork.testOnlyTOBEDELETED();
     }
 
+    public void printDjisktra(){
+        mapNetwork.djikstraAlgorithm();
+    }
+
 }

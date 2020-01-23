@@ -1,7 +1,9 @@
 package controllers;
 import collections.exceptions.EmptyCollectionException;
 import collections.list.unordered.ArrayUnorderedList;
+import collections.queue.LinkedQueue;
 import collections.stack.LinkedStack;
+import collections.tree.heap.LinkedHeap;
 import interfaces.NetworkADT;
 import java.util.Iterator;
 
@@ -86,7 +88,7 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
           //
             //  adjMatrix[index2][index1] = 0;
             connectionMatrix[index1][index2]=true;
-            connectionMatrix[index2][index1]=true;
+            //connectionMatrix[index2][index1]=true;
         }
     }
 
@@ -167,6 +169,69 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
         }
     }
 
+    /**
+     * TODO: Registar os caminhos para cada vértice com conexão ao exterior
+     */
+    public void djikstraAlgorithm(){
+        int shortestPathValue[] = new int[numVertices];
+        boolean vertexExistsInPath[] = new boolean[numVertices];
+        T[] previous = (T[])(new Object[numVertices]);
+
+        for (int ix = 0; ix < numVertices; ix++) {
+            shortestPathValue[ix]=Integer.MAX_VALUE;
+            vertexExistsInPath[ix]=false;
+        }
+        shortestPathValue[0]=0;
+        for (int ix = 1; ix < numVertices; ix++) {
+
+                int picked = minimumDistance(shortestPathValue, vertexExistsInPath);
+                vertexExistsInPath[picked] = true;
+
+                for (int jx = 0; jx < numVertices-1; jx++) {
+                    if (!vertexExistsInPath[jx] && adjMatrix[picked][jx] != -1 && shortestPathValue[picked] < Integer.MAX_VALUE
+                            && shortestPathValue[picked] + adjMatrix[picked][jx] < shortestPathValue[jx]) {
+                        shortestPathValue[jx] = shortestPathValue[picked] + adjMatrix[picked][jx];
+                    }
+                }
+            }
+        printSolution(shortestPathValue);
+    }
+
+    private int minimumDistance(int shortestePathValue[], boolean vertexExistsInPath[]) {
+        int minimum = Integer.MAX_VALUE;
+        int minimum_index = -1;
+
+        for (int ix = 0; ix < numVertices; ix++) {
+            if (vertexExistsInPath[ix] == false && shortestePathValue[ix] <= minimum) {
+                minimum = shortestePathValue[ix];
+                minimum_index = ix;
+            }
+        }
+
+        return minimum_index;
+    }
+
+    void printSolution(int shortestPathValue[]) {
+        System.out.println("Vertex \t\t Value of the Ghost");
+        for (int i = 0; i < numVertices-1; i++)
+            System.out.println(i + " \t\t " + shortestPathValue[i]);
+    }
+
+
+    /**
+     * @param index index of the vertex to measure
+     * @return true if its isolated, false otherwise
+     */
+    private boolean isVertexIsolated(int index){
+        int count = 0;
+        for(int ix=0; ix<numVertices; ix++){
+            if(connectionMatrix[index][ix]==true)
+                count++;
+        }
+        return (count<=1);
+    }
+
+
     @Override
     public Iterator iteratorBFS(T startVertex) throws EmptyCollectionException {
         return null;
@@ -178,7 +243,8 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
     }
 
     /*
-       TODO: Caminho mais curto entre o vértice inicial e o vértice Final
+       TODO: Caminho mais curto entre o vértice inicial e o vértice destino
+       O Objetivo é verificar qual é o caminho mais curto até a um ponto com menor peso que faça fronteira com o exterior. Será a melhor maneira?
      */
     @Override
     public Iterator iteratorShortestPath(T startVertex, T targetVertex) {
@@ -187,7 +253,7 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return (numVertices==0);
     }
 
     @Override
@@ -199,6 +265,12 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
     public int size() {
         return numVertices;
     }
+
+    /**
+     * @param index do vértice a ser verificado
+     * @return true if it is, false if it isn't
+     */
+    protected boolean isConnectedToExterior(int index){ return connectionMatrix[numVertices-1][index]; }
 
     protected int getIndex(T vertex) {
         for (int i = 0; i < numVertices; i++)
@@ -240,7 +312,7 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
         if (numVertices == 0)
             return "Graph is empty";
 
-        String result = new String("");
+        String result = "";
 
         /** Print the adjacency Matrix */
         result += "Adjacency Matrix\n";
@@ -265,9 +337,6 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
                     */
                 result += adjMatrix[i][j] + " ";
             }
-
-
-
                 result += "\n";
             }
 
