@@ -9,7 +9,7 @@ import collections.list.unordered.ArrayUnorderedList;
 
 public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
 
-    protected int counter;
+    protected int count;
     protected T[] tree;
     private final int DEFAULT_CAPACITY = 50;
 
@@ -17,7 +17,7 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
      * Creates an empty binary tree.
      */
     public ArrayBinaryTree() {
-        counter = 0;
+        count = 0;
         tree = (T[]) (new Object[DEFAULT_CAPACITY]);
     }
 
@@ -27,7 +27,7 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
      * @param element the element which will become the root of the new tree
      */
     public ArrayBinaryTree(T element) {
-        counter = 1;
+        count = 1;
         tree = (T[]) (new Object[DEFAULT_CAPACITY]);
         tree[0] = element;
     }
@@ -49,7 +49,7 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
         if (isEmpty()) {
             throw new EmptyCollectionException();
         }
-        return (findElement(targetElement) != null);
+        return (findAgain(targetElement, 0) != null);
     }
     
     /**
@@ -73,30 +73,6 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
         return temp;
     }
 
-    /**
-     * Returns a reference to the specified target element if it is found in
-     * this binary tree. (Linear Search)
-     *
-     * @param targetElement the element being sought in this tree
-     */
-    private T findElement(T targetElement) {
-        /*
-        NOTA: 
-        Este método serve só de exemplo em como se poderia pesquisar linearmente 
-        pelo array. É pouco eficiente, tendo em conta a abordagem utilizada para 
-        a organização dos nós no array. Isto é, poderão existir posições "vazias".
-        */
-        T temp = null;
-        boolean found = false;
-        for (int i = 0; i < counter && !found; i++) {
-            if (tree[i] != null && targetElement.equals(tree[i])) {
-                temp = tree[i];
-                found = true;
-            }
-        }
-        return temp;
-    }
-
     @Override
     public T getRoot() {
         return tree[0];
@@ -104,12 +80,12 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
 
     @Override
     public boolean isEmpty() {
-        return (counter == 0);
+        return (count == 0);
     }
 
     @Override
     public int size() {
-        return counter;
+        return count;
     }
 
     @Override
@@ -241,5 +217,16 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
             }
         }
         return s;
+    }
+    
+    /**
+     * Increases the size of the array
+     */
+    protected void expandCapacity() {
+        T[] new_array = (T[]) (new Object[tree.length + DEFAULT_CAPACITY]);
+        for (int i = 0; i < size(); i++) {
+            new_array[i] = tree[i];
+        }
+        tree = new_array;
     }
 }

@@ -64,7 +64,7 @@ public class ArrayUnorderedList<T> extends ArrayList<T> implements UnorderedList
             
         } else {
             boolean found = false;
-            int i = 0;
+            int i = 1; // start after the head of the list
             while (!found && i < count) {
                 if (target.equals(list[i])) {
                     found = true;
@@ -77,13 +77,11 @@ public class ArrayUnorderedList<T> extends ArrayList<T> implements UnorderedList
                 throw new ElementNotFoundException();
             }
             
-            temp = i + 1;
+            temp = i;
         }
         
-        if (temp != count - 1) {
-            // Shift all elements "forward" starting on the found element index
-            shiftArrayForward(temp + 1, count - 1);
-        }
+        // shift all elements "forward" starting on found element's following index
+        shiftArrayForward(temp + 1, count - 1);
         list[temp + 1] = element;
         
         count++;

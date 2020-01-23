@@ -86,7 +86,7 @@ public class ArrayBinarySearchTree<T> extends ArrayBinaryTree<T> implements Bina
             }
         }
         height = (int) (Math.log(maxIndex + 1) / Math.log(2)) + 1;
-        counter++;
+        count++;
     }
 
     @Override
@@ -98,7 +98,7 @@ public class ArrayBinarySearchTree<T> extends ArrayBinaryTree<T> implements Bina
             if (((Comparable) targetElement).equals(tree[0])) {
                 result = tree[0];
                 tree[0] = replacement(0);
-                counter--;
+                count--;
             } else {
                 int currentIndex, parentIndex = 0;
                 boolean found = false;
@@ -110,7 +110,7 @@ public class ArrayBinarySearchTree<T> extends ArrayBinaryTree<T> implements Bina
                 while (tree[currentIndex] != null && !found) {
                     if (targetElement.equals(tree[currentIndex])) {
                         found = true;
-                        counter--;
+                        count--;
                         result = tree[currentIndex];
                         if (tree[currentIndex].equals(tree[parentIndex * 2 + 1])) {
                             tree[parentIndex * 2 + 1] = replacement(currentIndex);
@@ -207,7 +207,7 @@ public class ArrayBinarySearchTree<T> extends ArrayBinaryTree<T> implements Bina
             tree[parentIndex * 2 + 1] = tree[currentIndex * 2 + 2];
         }
         
-        counter--;
+        count--;
         return result;
     }
 
@@ -231,7 +231,7 @@ public class ArrayBinarySearchTree<T> extends ArrayBinaryTree<T> implements Bina
             tree[parentIndex * 2 + 2] = tree[currentIndex * 2 + 1];
         }
         
-        counter--;
+        count--;
         return result;
     }
 
@@ -267,16 +267,5 @@ public class ArrayBinarySearchTree<T> extends ArrayBinaryTree<T> implements Bina
         result = tree[current];
 
         return result;
-    }
-
-    /**
-     * Increases the size of the array
-     */
-    protected void expandCapacity() {
-        T[] new_array = (T[]) (new Object[tree.length * 2]);
-        for (int i = 0; i < size(); i++) {
-            new_array[i] = tree[i];
-        }
-        tree = new_array;
     }
 }

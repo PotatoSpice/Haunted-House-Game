@@ -6,7 +6,6 @@ public class AVLBinaryTreeNode<T> extends BinaryTreeNode<T> {
 
     protected int height = 0;
     protected int balance = 0;
-    protected T element;
     protected AVLBinaryTreeNode<T> left, right;
 
     /**
@@ -16,7 +15,6 @@ public class AVLBinaryTreeNode<T> extends BinaryTreeNode<T> {
      */
     AVLBinaryTreeNode(T obj) {
         super(obj);
-        element = obj;
         left = null;
         right = null;
     }
@@ -24,13 +22,8 @@ public class AVLBinaryTreeNode<T> extends BinaryTreeNode<T> {
     public boolean isInternal(){
         return (left != null) || (right != null);
     }
-    
-    /**
-     * Returns the number of non-null children of this node. This method may be
-     * able to be written more efficiently.
-     *
-     * @return the integer number of non-null children of this node
-     */
+
+    @Override
     public int numChildren() {
         int children = 0;
         if (left != null) {

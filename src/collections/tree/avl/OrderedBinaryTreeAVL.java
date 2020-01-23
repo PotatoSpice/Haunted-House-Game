@@ -1,18 +1,25 @@
 package collections.tree.avl;
 
-import collections.tree.BinaryTreeNode;
 import collections.tree.LinkedBinaryTree;
 import collections.tree.adt.BinarySearchTreeADT;
 import collections.exceptions.ElementNotFoundException;
+import collections.exceptions.EmptyCollectionException;
 
 public class OrderedBinaryTreeAVL<T> extends LinkedBinaryTree<T> implements BinarySearchTreeADT<T> {
 
-    AVLBinaryTreeNode genericnode;
-
+    /**
+     * Creates an empty AVL binary search tree.
+     */
     public OrderedBinaryTreeAVL() {
         super();
     }
     
+    /**
+     * Creates an AVL binary search with the specified element as its root.
+     *
+     * @param element the element that will be the root of the new binary search
+     * tree
+     */
     public OrderedBinaryTreeAVL(T element) {
         super(element);
     }
@@ -54,24 +61,21 @@ public class OrderedBinaryTreeAVL<T> extends LinkedBinaryTree<T> implements Bina
 
     private AVLBinaryTreeNode<T> rebalance(AVLBinaryTreeNode<T> node){
         AVLBinaryTreeNode<T> nnode = null;
-        if (node.balance == 2) {
-            if (node.left.balance == 1) {
+        if (node.balance == 2)
+            if (node.left.balance == 1)
                 nnode = rotateWithRightChild(node);
-                
-            } else {
+            else {
                 node.left = rotateWithLeftChild(node);
                 nnode = rotateWithRightChild(node);
-            }
-            
-        } else if (node.balance == -2) {
-            if (node.right.balance == -1) {
+            } 
+        else if (node.balance == -2)
+            if (node.right.balance == -1)
                 nnode = rotateWithLeftChild(node);
-                
-            } else {
+            else {
                 node.right = rotateWithRightChild(node.right);
                 nnode = rotateWithLeftChild(node);
             }
-        }
+        
         return nnode;
     }
 
@@ -87,13 +91,13 @@ public class OrderedBinaryTreeAVL<T> extends LinkedBinaryTree<T> implements Bina
 
     @Override
     public void addElement(T element) {
-        AVLBinaryTreeNode<T> temp = new AVLBinaryTreeNode<T>((T) element);
+        AVLBinaryTreeNode<T> temp = new AVLBinaryTreeNode<>(element);
         Comparable<T> comparableElement = (Comparable<T>) element;
         AVLBinaryTreeNode<T> current = null;
         if (isEmpty())
             this.root = temp;
         else {
-            current=  (AVLBinaryTreeNode<T>) this.root;
+            current = (AVLBinaryTreeNode<T>) this.root;
             boolean added = false;
             while (!added) {
                 if (comparableElement.compareTo(current.element) < 0) {
@@ -112,27 +116,30 @@ public class OrderedBinaryTreeAVL<T> extends LinkedBinaryTree<T> implements Bina
             }
             current = fixTreeNodes(current);
         }
-        current.height = maxHeight( height( current.left ), height(current.right ) ) + 1;
+        current.height = maxHeight(
+                height(current.left), height(current.right) ) + 1;
         count++;
     }
 
     private AVLBinaryTreeNode<T> fixTreeNodes(AVLBinaryTreeNode<T> node){
         updateBalanceandHeight(node);
-        if(node.balance == 2 || node.balance == -2) {
+        if(node.balance == 2 || node.balance == -2)
             node = rebalance(node);
-        }
         return node;
     }
 
+    @Override
+    public T removeElement(T targetElement) throws ElementNotFoundException {
+        // TODO
+        return null;
+    }
+    
     private AVLBinaryTreeNode<T> replacement(AVLBinaryTreeNode<T> node) {
-
-        AVLBinaryTreeNode<T> result = null;
+        AVLBinaryTreeNode<T> result;
         if ((node.left == null) && (node.right == null))
             result = null;
-
         else if ((node.left != null) && (node.right == null))
             result = node.left;
-
         else if ((node.left == null) && (node.right != null))
             result = node.right;
         else {
@@ -144,7 +151,6 @@ public class OrderedBinaryTreeAVL<T> extends LinkedBinaryTree<T> implements Bina
             }
             if (node.right == current)
                 current.left = node.left;
-
             else {
                 parent.left = current.right;
                 current.right = node.right;
@@ -153,79 +159,103 @@ public class OrderedBinaryTreeAVL<T> extends LinkedBinaryTree<T> implements Bina
             result = current;
         }
         return result;
-
     }
 
     @Override
-    public T removeElement(T targetElement) throws ElementNotFoundException {
-        return null;
+    public void removeAllOccurrences(T targetElement) 
+            throws ElementNotFoundException, EmptyCollectionException {
+        removeElement(targetElement); // this first call tries the exceptions
+        
+        while (contains(targetElement)) {
+            // Both this calls (contains and remove) will never throw exceptions.
+            removeElement(targetElement);
+        }
     }
 
     @Override
-    public void removeAllOccurrences(T targetElement) throws ElementNotFoundException {
-
-    }
-
-    @Override
-    public T removeMin() {
-        T result =  (T)findMin();
-        replacement(getANode());
+    public T removeMin() throws EmptyCollectionException {
+        if (isEmpty()) {
+            throw new EmptyCollectionException();
+        }
+        T result;
+        
+        if (root.left == null) {
+            result = root.element;
+            root = root.right;
+            
+        } else {
+            AVLBinaryTreeNode<T> current = (AVLBinaryTreeNode<T>) root.left, 
+                    parent = (AVLBinaryTreeNode<T>) root;
+            while (current.left != null) {
+                parent = current;
+                current = current.left;
+            }
+            result = current.element;
+            parent.left = current.right;
+        }
+        
         count--;
         return result;
     }
 
-
-
     @Override
-    public T removeMax() {
-        T result =  (T)findMax();
-        replacement(getANode());
+    public T removeMax() throws EmptyCollectionException {
+        if (isEmpty()) {
+            throw new EmptyCollectionException();
+        }
+        T result;
+        
+        if (root.right == null) {
+            result = root.element;
+            root = root.left;
+            
+        } else {
+            AVLBinaryTreeNode<T> current = (AVLBinaryTreeNode<T>) root.right, 
+                    parent = (AVLBinaryTreeNode<T>) root;
+            while (current.right != null) {
+                parent = current;
+                current = current.right;
+            }
+            result = current.element;
+            parent.right = current.left;
+        }
+        
         count--;
         return result;
     }
 
     @Override
-    public T findMin() {
-        T result = null;
-        AVLBinaryTreeNode<T> node = (AVLBinaryTreeNode<T>) this.root;
-        if(root.element!=null) {
-            while (node.left != null) {
-                node=node.left;
-            }
-            setANode(node);
-            result = node.element;
-       /*     if(node.isInternal())
-                node = node.right; */
-
+    public T findMin() throws EmptyCollectionException {
+        if (isEmpty()) {
+            throw new EmptyCollectionException();
         }
+
+        T result;
+        // Get the leftmost element in the tree
+        AVLBinaryTreeNode<T> current = (AVLBinaryTreeNode<T>) root;
+        while (current.left != null) {
+            current = current.left;
+        }
+        result = current.element;
+        
         return result;
     }
 
     @Override
-    public T findMax() {
-        T result = null;
-        AVLBinaryTreeNode<T> node = (AVLBinaryTreeNode<T>) this.root;
-        if(root.element!=null) {
-            while (node.right != null) {
-                node=node.right;
-            }
-            setANode(node);
-            result = node.element;
-       /*     if(node.isInternal())
-                node = node.right; */
-
+    public T findMax() throws EmptyCollectionException {
+        if (isEmpty()) {
+            throw new EmptyCollectionException();
         }
+
+        T result;
+        // Get the rightmost element in the tree
+        AVLBinaryTreeNode<T> current = (AVLBinaryTreeNode<T>) root;
+        while (current.right != null) {
+            current = current.right;
+        }
+        result = current.element;
+
         return result;
-    }
-
-    private void setANode(AVLBinaryTreeNode<T> btn){
-        this.genericnode = btn;
-    }
-
-    private AVLBinaryTreeNode<T> getANode(){
-        AVLBinaryTreeNode<T> tempnode = genericnode;
-        genericnode= null;
-        return tempnode;
     }
 
 }

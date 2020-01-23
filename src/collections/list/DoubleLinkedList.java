@@ -8,18 +8,18 @@ import java.util.Iterator;
 
 public class DoubleLinkedList<T> implements ListADT<T> {
 
-    /** reference to the queue's first added element (first to get removed) */
+    /** reference to the list front element */
     protected DoubleNode<T> head;
-    /** reference to the queue's last added element (last to get removed) */
+    /** reference to the list back element */
     protected DoubleNode<T> tail;
-    /** counter of queue's elements */
+    /** counter of list elements */
     protected int count = 0;
 
     /** for use in Iterator */
     protected int modCount;
 
     /**
-     * Creates an empty queue with zero nodes.
+     * Creates an empty list with zero nodes.
      */
     public DoubleLinkedList() {
         tail = null;
@@ -29,7 +29,7 @@ public class DoubleLinkedList<T> implements ListADT<T> {
     }
 
     /**
-     * Creates a queue starting on a node with the specified element.
+     * Creates a list starting on a node with the specified element.
      *
      * @param element content for the node's element.
      */
@@ -92,18 +92,18 @@ public class DoubleLinkedList<T> implements ListADT<T> {
         if (count == 1) {
             head = tail = null;
             
-        } else if (element.equals(head)) {
+        } else if (element.equals(head.getElement())) {
             head = head.getNext();
             head.setPrevious(null);
             
-        } else if (element.equals(tail)) {
+        } else if (element.equals(tail.getElement())) {
             tail = tail.getPrevious();
             tail.setNext(null);
             
         } else {
-            // Search for the element node that's being removed
+            // search for the element node that's being removed
             boolean found = false;
-            DoubleNode<T> current = head;
+            DoubleNode<T> current = head.getNext();
             while (!found && current != null) {
                 if (element.equals(current.getElement())) {
                     found = true;
@@ -149,13 +149,13 @@ public class DoubleLinkedList<T> implements ListADT<T> {
             throw new EmptyCollectionException();
         }
 
-        if (target.equals(head)) {
+        if (target.equals(head.getElement())) {
             return true;
-        } else if (target.equals(tail)) {
+        } else if (target.equals(tail.getElement())) {
             return true;
         } else {
             boolean found = false;
-            DoubleNode<T> current = head;
+            DoubleNode<T> current = head.getNext();
             while (!found && current.getNext() != null) {
                 if (target.equals(current.getElement())) {
                     found = true;

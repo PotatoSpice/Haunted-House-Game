@@ -48,15 +48,14 @@ public class ArrayQueue<T> implements QueueADT<T> {
         if (size() == queue.length) {
             expandCapacity();
         }
-        // If the queue is empty, define the new element as the front
+        
         if (isEmpty()) {
+            // queue is empty, define the new element as the front
             queue[front] = element;
         }
-        // Insert the new element at the rear of the queue
         queue[rear] = element;
-        // Calculate the next index for the queue's rear end
+        // calculate the next index for the queue's rear end
         rear = (rear + 1) % queue.length;
-        // Increment the elements counter
         count++;
     }
 
@@ -64,21 +63,19 @@ public class ArrayQueue<T> implements QueueADT<T> {
      * Removes and returns the element at the front of this queue.
      *
      * @return the element at the front of this queue
+     * @throws collections.exceptions.EmptyCollectionException
      */
     @Override
     public T dequeue() throws EmptyCollectionException {
         if (isEmpty()) {
             throw new EmptyCollectionException();
         }
-        // Save the element on the front for 'return'
         T temp = queue[front];
-        // Remove the element from the queue's front
+        
         queue[front] = null;
-        // Increment the queue's front index as the next element
         front++;
-        // Decrement the elements counter
         count--;
-        // Return the removed element
+        
         return temp;
     }
 
@@ -86,6 +83,7 @@ public class ArrayQueue<T> implements QueueADT<T> {
      * Returns without removing the element at the front of this queue.
      *
      * @return the first element in this queue
+     * @throws collections.exceptions.EmptyCollectionException
      */
     @Override
     public T first() throws EmptyCollectionException {

@@ -9,14 +9,14 @@ import collections.list.unordered.ArrayUnorderedList;
 public class DoubleLinkedOrderedList<T> extends DoubleLinkedList<T> implements OrderedListADT<T> {
 
     /**
-     * Creates an empty queue with zero nodes.
+     * Creates an empty list with zero nodes.
      */
     public DoubleLinkedOrderedList() {
         super();
     }
 
     /**
-     * Creates a queue starting on a node with the specified element.
+     * Creates a list starting on a node with the specified element.
      *
      * @param element content for the node's element.
      */

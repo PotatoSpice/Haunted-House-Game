@@ -8,14 +8,14 @@ import collections.list.DoubleNode;
 public class DoubleLinkedUnorderedList<T> extends DoubleLinkedList<T> implements UnorderedListADT<T> {
 
     /**
-     * Creates an empty queue with zero nodes.
+     * Creates an empty list with zero nodes.
      */
     public DoubleLinkedUnorderedList() {
         super();
     }
 
     /**
-     * Creates a queue starting on a node with the specified element.
+     * Creates a list starting on a node with the specified element.
      *
      * @param element content for the node's element.
      */
@@ -60,10 +60,10 @@ public class DoubleLinkedUnorderedList<T> extends DoubleLinkedList<T> implements
         DoubleNode<T> new_node = new DoubleNode<>(element);
         
         DoubleNode<T> current;
-        if (target.equals(head)) {
+        if (target.equals(head.getElement())) {
             current = head;
             
-        } else if (target.equals(tail)) {
+        } else if (target.equals(tail.getElement())) {
             current = tail;
             
         } else {

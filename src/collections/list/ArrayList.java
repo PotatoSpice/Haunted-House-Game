@@ -76,17 +76,22 @@ public class ArrayList<T> implements ListADT<T> {
         if (isEmpty()) {
             throw new EmptyCollectionException();
         }
-        
+
         T remove;
-        int elem = 0;
+        int elem;
+        // check if element is at the start or end of the list before searching
         if (element.equals(list[0])) {
             remove = list[0];
+            elem = 0;
             
         } else if (element.equals(list[count - 1])) {
             remove = list[count - 1];
+            elem = count - 1;
             
         } else {
+            // search for the element
             boolean found = false;
+            elem = 1;
             while (!found && elem < count) {
                 if (element.equals(list[elem])) {
                     found = true;
@@ -102,13 +107,10 @@ public class ArrayList<T> implements ListADT<T> {
             remove = list[elem];
         }
         
-        if (!remove.equals(list[count - 1])) {
-            // Shift all the elements "backwards". This will replace the element we
-            // want to remove with the one that procedes it in the array
-            shiftArrayBackward(elem, count - 1);
-        } else {
-            list[count - 1] = null;
-        }
+        // shift all the elements "backwards". 
+        // This will replace the element we want to remove with the one 
+        // that procedes it in the array, null if it's the last
+        shiftArrayBackward(elem, count - 1);
         
         count--;
         modCount++;
