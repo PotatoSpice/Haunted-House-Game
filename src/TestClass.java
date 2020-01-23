@@ -1,8 +1,10 @@
+import collections.exceptions.ElementNotFoundException;
+import collections.exceptions.EmptyCollectionException;
 import controllers.MapReader;
 
 public class TestClass {
 
-    public static void main(String args[]){
+    public static void main(String args[]) throws ElementNotFoundException, EmptyCollectionException {
 
         MapReader mapReader = new MapReader();
 
@@ -10,7 +12,7 @@ public class TestClass {
         mapReader.loadRooms(mapReader.getMapModel());
         mapReader.loadGraphWithRoom(mapReader.getMapModel().getRooms());
         System.out.println(mapReader.testOnlyTOBEDELETED());
-        mapReader.printDjisktra();
+        mapReader.printDijsktra();
 
     }
 

@@ -1,5 +1,7 @@
 package controllers;
 
+import collections.exceptions.ElementNotFoundException;
+import collections.exceptions.EmptyCollectionException;
 import com.google.gson.*;
 import collections.list.unordered.ArrayUnorderedList;
 import interfaces.IMapReader;
@@ -67,14 +69,13 @@ public class MapReader implements IMapReader {
     public NetworkADT loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels) {
             ArrayUnorderedList<RoomModel> tempRoomModel = new ArrayUnorderedList<>();
             Iterator iteratingRoom = rooms.iterator();
-            mapNetwork.addEntrance();
+            mapNetwork.addVertex("entrada");
             while(iteratingRoom.hasNext()){
                 RoomModel room = (RoomModel) iteratingRoom.next();
                 mapNetwork.addVertex(room.getRoomname());
-                //System.out.println("Load Test: "+room.getRoomname());
                 tempRoomModel.addToRear(room);
             }
-            mapNetwork.addExterior();
+            mapNetwork.addVertex("exterior");
 
             Iterator tempIteratingRoom = tempRoomModel.iterator();
             while(tempIteratingRoom.hasNext()){
@@ -86,11 +87,10 @@ public class MapReader implements IMapReader {
                         String roomName = (String) connectionIterator.next();
                         if(mapNetwork.checkVertexExistence(roomName) && !roomName.equals("entrada") && !roomName.equals("exterior")){
                             mapNetwork.addEdge(toCompareModel.getRoomname(), roomName, toCompareModel.getPhantom());
-                           // System.out.println("Load Test: "+toCompareModel.getPhantom());
                         }else if(roomName.equals("entrada")){
-                            mapNetwork.addEntranceEdge(toCompareModel.getRoomname(), toCompareModel.getPhantom());
+                            mapNetwork.addEdge(toCompareModel.getRoomname(), roomName, toCompareModel.getPhantom());
                         }else if (roomName.equals("exterior")){
-                            mapNetwork.addExteriorEdge(toCompareModel.getRoomname());
+                            mapNetwork.addEdge(toCompareModel.getRoomname(), roomName);
                         }
                     }
                 }
@@ -104,8 +104,15 @@ public class MapReader implements IMapReader {
         return mapNetwork.testOnlyTOBEDELETED();
     }
 
-    public void printDjisktra(){
-        mapNetwork.djikstraAlgorithm();
+    /**
+     * TEST METHOD ONLY
+     */
+    public void printDijsktra() throws ElementNotFoundException, EmptyCollectionException {
+       Iterator iterator = mapNetwork.dijkstraAlgorithm(0, mapNetwork.numVertices-1);
+        System.out.println("Entrou "+ iterator.hasNext());
+       while(iterator.hasNext()){
+            System.out.println(iterator.next());
+        }
     }
 
 }

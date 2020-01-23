@@ -1,9 +1,9 @@
 package controllers;
+import collections.exceptions.ElementNotFoundException;
 import collections.exceptions.EmptyCollectionException;
 import collections.list.unordered.ArrayUnorderedList;
 import collections.queue.LinkedQueue;
 import collections.stack.LinkedStack;
-import collections.tree.heap.LinkedHeap;
 import interfaces.NetworkADT;
 import java.util.Iterator;
 
@@ -20,49 +20,6 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
         this.adjMatrix = new int[DEFAULT_CAPACITY][DEFAULT_CAPACITY];
         this.connectionMatrix = new boolean[DEFAULT_CAPACITY][DEFAULT_CAPACITY];
         this.vertices = (T[])(new Object[DEFAULT_CAPACITY]);
-    }
-
-
-    protected void addEntrance(){
-        vertices[numVertices] = (T) "entrada";
-        for (int i = 0; i <= numVertices; i++) {
-            adjMatrix[numVertices][i] = -1;
-            adjMatrix[i][numVertices] = -1;
-            connectionMatrix[numVertices][i]=false;
-            connectionMatrix[i][numVertices]=false;
-        }
-        numVertices++;
-    }
-
-    protected void addExterior(){
-        vertices[numVertices] = (T) "exterior";
-        for (int i = 0; i <= numVertices; i++) {
-            adjMatrix[numVertices][i] = -1;
-            adjMatrix[i][numVertices] = -1;
-            connectionMatrix[numVertices][i]=false;
-            connectionMatrix[i][numVertices]=false;
-        }
-        numVertices++;
-    }
-
-    protected void addEntranceEdge(T vertex, int weight){
-        int index = getIndex(vertex);
-
-        if (numVertices == vertices.length)
-            expandCapacity();
-
-        if(indexIsValid(index)){
-            adjMatrix[0][index] = weight;
-            connectionMatrix[0][index] = true;
-        }
-    }
-
-    protected void addExteriorEdge(T vertex){
-        int index = getIndex(vertex);
-        if(indexIsValid(index)){
-            adjMatrix[numVertices-1][index] = 0;
-            connectionMatrix[numVertices-1][index] = true;
-        }
     }
 
     protected boolean checkVertexExistence(T vertex){
@@ -85,16 +42,36 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
         int index2 = getIndex(vertex2);
         if(indexIsValid(index1) && indexIsValid(index2)) {
             adjMatrix[index2][index1] = weight;
-          //
-            //  adjMatrix[index2][index1] = 0;
             connectionMatrix[index1][index2]=true;
-            //connectionMatrix[index2][index1]=true;
         }
     }
 
+    /**
+     *
+     *
+     * @param vertex1 Vértice do começo
+     * @param vertex2 Vértice do término
+     * @return o valor do peso até ao final através do caminho de Dijkstra
+     * @throws EmptyCollectionException
+     * @throws ElementNotFoundException
+     */
     @Override
-    public double shortestPathWeight(T vertex1, T vertex2) throws EmptyCollectionException {
-        return 0;
+    public double shortestPathWeight(T vertex1, T vertex2) throws EmptyCollectionException, ElementNotFoundException {
+
+        int tempWeight=-1;
+        int totalweight=0;
+
+        Iterator iterator = dijkstraAlgorithm(getIndex(vertex1), getIndex(vertex2));
+        while(iterator.hasNext()){
+            int counter=0;
+            while(tempWeight==-1){
+                counter++;
+                tempWeight = adjMatrix[counter][getIndex((T)iterator.next())];
+            }
+            totalweight=totalweight+tempWeight;
+        }
+
+        return totalweight;
     }
 
     @Override
@@ -144,19 +121,26 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
         }
     }
 
-    //Usa-se este quanto não há fantasma nas duas divisões, assume-se que. apesar de ser orientado, existe coneções entre todas excepto a entrada e o exterior, que teremos de ter tratamento diferente
+    /**
+     * @param vertex1 Vertice Inicial
+     * @param vertex2 Vertice Destino
+     */
     @Override
     public void addEdge(T vertex1, T vertex2) {
         int index1 = getIndex(vertex1);
         int index2 = getIndex(vertex2);
         if(indexIsValid(index1) && indexIsValid(index2)) {
-            adjMatrix[index1][index2] = 0;
-            adjMatrix[index2][index1] = 0;
-            connectionMatrix[index1][index2]=true;
-            connectionMatrix[index2][index1]=true;
+           adjMatrix[index1][index2] = 0;
+           // adjMatrix[index2][index1] = 0;
+           connectionMatrix[index1][index2]=true;
+          //  connectionMatrix[index2][index1]=true;
         }
     }
 
+    /**
+     * @param vertex1 Vértice fonte
+     * @param vertex2 Vértice Destino
+     */
     @Override
     public void removeEdge(T vertex1, T vertex2) {
         int index1 = getIndex(vertex1);
@@ -170,53 +154,79 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
     }
 
     /**
-     * TODO: Registar os caminhos para cada vértice com conexão ao exterior
+     * Este método cria um iterador que percorre, utilizando os caminhos mais curtos calculados pelo Algoritmo de Dijkstra, o caminho mais curto.
+     *
+     * @param sourceIndex Indíce do vértice de partida
+     * @param destinationIndex Indice do vértice de destino
      */
-    public void djikstraAlgorithm(){
+    public Iterator<T> dijkstraAlgorithm(int sourceIndex, int destinationIndex) throws ElementNotFoundException {
+
+        if(!indexIsValid(sourceIndex) && !indexIsValid(destinationIndex))
+            new ElementNotFoundException("Index is invalid");
+
         int shortestPathValue[] = new int[numVertices];
         boolean vertexExistsInPath[] = new boolean[numVertices];
-        T[] previous = (T[])(new Object[numVertices]);
+        int[] previous = new int[numVertices];
 
         for (int ix = 0; ix < numVertices; ix++) {
             shortestPathValue[ix]=Integer.MAX_VALUE;
             vertexExistsInPath[ix]=false;
+            previous[ix]=-1;
         }
-        shortestPathValue[0]=0;
+        shortestPathValue[sourceIndex]=0;
         for (int ix = 1; ix < numVertices; ix++) {
-
                 int picked = minimumDistance(shortestPathValue, vertexExistsInPath);
                 vertexExistsInPath[picked] = true;
 
-                for (int jx = 0; jx < numVertices-1; jx++) {
+                for (int jx = 0; jx < numVertices; jx++) {
                     if (!vertexExistsInPath[jx] && adjMatrix[picked][jx] != -1 && shortestPathValue[picked] < Integer.MAX_VALUE
                             && shortestPathValue[picked] + adjMatrix[picked][jx] < shortestPathValue[jx]) {
                         shortestPathValue[jx] = shortestPathValue[picked] + adjMatrix[picked][jx];
+                        previous[jx]=picked;
                     }
                 }
             }
+        ArrayUnorderedList<T> resultList = new ArrayUnorderedList<>();
+        int target = destinationIndex;
+        if (previous[target] != -1) {
+            while (target != -1) {
+                resultList.addToFront(this.vertices[target]);
+                target = previous[target];
+
+            }
+        }
         printSolution(shortestPathValue);
+        return resultList.iterator();
     }
 
-    private int minimumDistance(int shortestePathValue[], boolean vertexExistsInPath[]) {
+    /**
+     * @param shortestPathValue Array com distâncias entre os vértices
+     * @param vertexExistsInPath Array que regista se os vértice estão presentes no caminho
+     * @return o indice do caminho mínimo
+     */
+    private int minimumDistance(int shortestPathValue[], boolean vertexExistsInPath[]) {
         int minimum = Integer.MAX_VALUE;
         int minimum_index = -1;
 
         for (int ix = 0; ix < numVertices; ix++) {
-            if (vertexExistsInPath[ix] == false && shortestePathValue[ix] <= minimum) {
-                minimum = shortestePathValue[ix];
+            if (vertexExistsInPath[ix] == false && shortestPathValue[ix] <= minimum) {
+                minimum = shortestPathValue[ix];
                 minimum_index = ix;
             }
         }
-
         return minimum_index;
     }
 
+    /**
+     * TEST MEHTOD: Imprime o array cotendo as distâncias
+     *
+     * @param shortestPathValue Array com distâncias entre os vértices
+     */
     void printSolution(int shortestPathValue[]) {
         System.out.println("Vertex \t\t Value of the Ghost");
         for (int i = 0; i < numVertices-1; i++)
             System.out.println(i + " \t\t " + shortestPathValue[i]);
     }
-
 
     /**
      * @param index index of the vertex to measure
@@ -234,21 +244,84 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
 
     @Override
     public Iterator iteratorBFS(T startVertex) throws EmptyCollectionException {
-        return null;
+        int startIndex = getIndex(startVertex);
+        int tempIndex;
+        LinkedQueue<Integer> linkedQueue = new LinkedQueue<>();
+        ArrayUnorderedList<T> resultList = new ArrayUnorderedList<>();
+
+        if (!indexIsValid(startIndex)) {
+            return resultList.iterator();
+        }
+
+        boolean[] visited = new boolean[numVertices];
+        for (int ix = 0; ix < numVertices; ix++) {
+            visited[ix] = false;
+        }
+
+        linkedQueue.enqueue(startIndex);
+        visited[startIndex] = true;
+
+        while (!linkedQueue.isEmpty()) {
+            tempIndex = linkedQueue.dequeue();
+            resultList.addToRear(vertices[tempIndex]);
+            for (int ix = 0; ix < numVertices; ix++) {
+                if((adjMatrix[tempIndex][ix] < Integer.MAX_VALUE) && !visited[ix]) {
+                    linkedQueue.enqueue(ix);
+                    visited[ix] = true;
+                }
+            }
+        }
+        return resultList.iterator();
     }
 
     @Override
     public Iterator iteratorDFS(T startVertex) throws EmptyCollectionException {
-        return null;
+
+        int startIndex = getIndex(startVertex);
+
+        if(!indexIsValid(startIndex)){
+            new EmptyCollectionException("Invalid index");
+        }
+
+        int tempIndex;
+        boolean found;
+        LinkedStack<Integer> linkedStack = new LinkedStack<>();
+        ArrayUnorderedList<T> resultList = new ArrayUnorderedList();
+        boolean[] visited = new boolean[numVertices];
+
+        if (!indexIsValid(startIndex)) {
+            return resultList.iterator();
+        }
+        for (int ix = 0; ix < numVertices; ix++) {
+            visited[ix] = false;
+        }
+
+        linkedStack.push(startIndex);
+        resultList.addToRear(vertices[startIndex]);
+        visited[startIndex] = true;
+
+        while (!linkedStack.isEmpty()) {
+            tempIndex = linkedStack.peek();
+            found = false;
+            for (int ix = 0; (ix < numVertices) && !found; ix++) {
+                if((adjMatrix[tempIndex][ix] < Integer.MAX_VALUE) && !visited[ix]) {
+                    linkedStack.push(ix);
+                    resultList.addToRear(vertices[ix]);
+                    visited[ix] = true;
+                    found = true;
+                }
+            }
+            if (!found && !linkedStack.isEmpty()) {
+                linkedStack.pop();
+            }
+        }
+        return resultList.iterator();
     }
 
-    /*
-       TODO: Caminho mais curto entre o vértice inicial e o vértice destino
-       O Objetivo é verificar qual é o caminho mais curto até a um ponto com menor peso que faça fronteira com o exterior. Será a melhor maneira?
-     */
+
     @Override
-    public Iterator iteratorShortestPath(T startVertex, T targetVertex) {
-        return null;
+    public Iterator iteratorShortestPath(T startVertex, T targetVertex) throws ElementNotFoundException {
+        return dijkstraAlgorithm(getIndex(startVertex), getIndex(targetVertex));
     }
 
     @Override
@@ -270,7 +343,7 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
      * @param index do vértice a ser verificado
      * @return true if it is, false if it isn't
      */
-    protected boolean isConnectedToExterior(int index){ return connectionMatrix[numVertices-1][index]; }
+    protected boolean isConnectedToExterior(int index){ return connectionMatrix[index][numVertices-1]; }
 
     protected int getIndex(T vertex) {
         for (int i = 0; i < numVertices; i++)
@@ -279,13 +352,12 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
         return -1;
     }
 
-    private boolean indexIsValid(int index)
-    {
-        return ((index < numVertices) && (index >= 0));
-    }
+    private boolean indexIsValid(int index) { return ((index < numVertices) && (index >= 0)); }
 
-    private void expandCapacity()
-    {
+    /**
+     * Duplica a capcidade do Array quando este atinge a sua capacidade máxima
+     */
+    private void expandCapacity() {
         T[] largerVertices = (T[])(new Object[vertices.length*2]);
 
         int[][] largerAdjMatrix =
@@ -330,11 +402,6 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
             result += "" + i + "\t";
 
             for (int j = 0; j < numVertices; j++) {
-              /*  if (adjMatrix[i][j] >= 0)
-                    result += "1 ";
-                else
-                    result += "-1 ";
-                    */
                 result += adjMatrix[i][j] + " ";
             }
                 result += "\n";
@@ -363,7 +430,6 @@ public class DirectedNetwork<T> implements NetworkADT<T> {
                     }
                 }
             }
-
             result += "\n";
             return result;
         }
