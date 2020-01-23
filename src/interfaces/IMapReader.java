@@ -31,6 +31,4 @@ public interface IMapReader {
      */
     NetworkADT loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels);
 
-
-
 }
