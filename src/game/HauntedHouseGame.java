@@ -3,74 +3,53 @@ package game;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Transparency;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import javax.swing.ImageIcon;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.WindowConstants;
 
 /** https://stackoverflow.com/questions/1963494/java-2d-game-graphics#1963684 */
 public class HauntedHouseGame extends Thread {
-    private boolean isRunning = true;
-    private boolean gameLoaded = false;
-    private long gameTime = 0;
-    private int currentFPS = 0;
     
+    // Janela Principal
+    private final MainGame main = null;
+    
+    // Graficos
     private Canvas canvas;
     private BufferStrategy strategy;
     private BufferedImage background;
     private Graphics2D backgroundGraphics;
     private Graphics2D graphics;
-    private JFrame frame;
-    private JLabel backImage;
-    private int width = 320;
-    private int height = 240;
-    private int scale = 2;
-    private GraphicsConfiguration config =
-            GraphicsEnvironment.getLocalGraphicsEnvironment()
-                .getDefaultScreenDevice()
-                .getDefaultConfiguration();
+    
+    private int width;
+    private int height;
+    private int scale;
+    
+    // Jogo
+    private boolean isRunning = true;
+    private boolean gameLoaded = false;
+    private long gameTime = 0;
+    private int currentFPS = 0;
 
     // create a hardware accelerated image
     protected final BufferedImage create(final int width, final int height,
             final boolean alpha) {
-        return config.createCompatibleImage(width, height, alpha
+        return main.config.createCompatibleImage(width, height, alpha
                 ? Transparency.TRANSLUCENT : Transparency.OPAQUE);
     }
-
-    // Setup
-    public HauntedHouseGame() {
+    
+    public HauntedHouseGame(final MainGame game) {
         super();
-        // Background Image
-        backImage = new JLabel();
-        backImage.setIcon(new ImageIcon("C:\\Users\\Asus\\Desktop\\EngInformatica\\ED\\pepe.gif"));
-        backImage.setLayout(new java.awt.BorderLayout(0, 0));
-        // JFrame
-        frame = new JFrame(config);
-        frame.setLayout(new java.awt.BorderLayout(0, 0));
-        frame.setResizable(false);
-        frame.setTitle("HauntedHouseGame");
-        // menu = new GameMenu(this, initMenu, gameMenu);
-        frame.addWindowListener(new FrameClose());
-        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        frame.setSize(width * scale, height * scale);
-        frame.setVisible(true);
-
+        width = game.width;
+        height = game.height;
+        scale = game.getScale();
+        
         // Canvas
-        canvas = new Canvas(config);
+        canvas = new Canvas(game.config);
         canvas.setSize(width * scale, height * scale);
-        backImage.add(canvas, 0);
-        frame.add(backImage, 0);
-        //frame.add(canvas, 0);
+        
+        game.getMainWindow().removeAll();
+        game.getMainWindow().add(canvas, 0);
 
         // Background & Buffer
         background = create(width, height, false);
@@ -78,13 +57,6 @@ public class HauntedHouseGame extends Thread {
         do {
             strategy = canvas.getBufferStrategy();
         } while (strategy == null);
-    }
-
-    private class FrameClose extends WindowAdapter {
-        @Override
-        public void windowClosing(final WindowEvent e) {
-            isRunning = false;
-        }
     }
 
     // Screen and buffer stuff
@@ -107,10 +79,7 @@ public class HauntedHouseGame extends Thread {
             Toolkit.getDefaultToolkit().sync();
             return (!strategy.contentsLost());
 
-        } catch (NullPointerException e) {
-            return true;
-
-        } catch (IllegalStateException e) {
+        } catch (NullPointerException | IllegalStateException e) {
             return true;
         }
     }
@@ -126,13 +95,12 @@ public class HauntedHouseGame extends Thread {
             long renderStart = System.nanoTime();
             updateGame();
 
+            // CHECK KEY FOR GAME QUIT isRunning = false;
+            
             // Update Graphics
             do {
                 Graphics2D bg = getBuffer();
-                if (!isRunning) {
-                    frame.dispose();
-                    return;
-                }
+                
                 renderGame(backgroundGraphics); // this calls your draw method
                 if (scale != 1) {
                     bg.drawImage(background, 0, 0, width * scale, height
@@ -165,7 +133,6 @@ public class HauntedHouseGame extends Thread {
 
         }
         gameLoaded = false;
-        frame.dispose();
     }
 
     private void updateGame() {
@@ -209,6 +176,10 @@ public class HauntedHouseGame extends Thread {
         
         int randomTerrainIndex = r.nextInt(TERRAIN.length);
         Color randomColor = TERRAIN[randomTerrainIndex];
+        
+        // Image img = Toolkit.getDefaultToolkit().getImage("./files/img/pepe.gif");
+        // g.drawImage(img, width, height, null);
+        
         g.setColor(Color.GRAY);
         g.fillRect(width - 50, height - 50, 200, 200);
         g.setColor(randomColor);
@@ -224,7 +195,7 @@ public class HauntedHouseGame extends Thread {
         return currentFPS;
     }
 
-    public static void main(final String args[]) {
-        new HauntedHouseGame().start();
+    public boolean isGameLoaded() {
+        return gameLoaded;
     }
 }

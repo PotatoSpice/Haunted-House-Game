@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
 
-public class Map extends JPanel {
+public class Test extends JPanel {
 
     public static final Color CITY = new Color(214,217,223);
     public static final Color DESERT = new Color(255,204,102);
@@ -40,7 +40,7 @@ public class Map extends JPanel {
     // game world.  Keeping simple just to illustrate.
     private final Color[][] terrainGrid;
 
-    public Map(){
+    public Test(){
         this.terrainGrid = new Color[NUM_ROWS][NUM_COLS];
         Random r = new Random();
         // Randomize the terrain
@@ -83,7 +83,7 @@ public class Map extends JPanel {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 JFrame frame = new JFrame("Game");
-                Map map = new Map();
+                Test map = new Test();
                 frame.add(map);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.pack();
