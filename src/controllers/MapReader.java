@@ -66,7 +66,7 @@ public class MapReader implements IMapReader {
     }
 
     @Override
-    public NetworkADT loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels) {
+    public DirectedNetwork<String> loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels) {
             ArrayUnorderedList<RoomModel> tempRoomModel = new ArrayUnorderedList<>();
             Iterator iteratingRoom = rooms.iterator();
             mapNetwork.addVertex("entrada");
