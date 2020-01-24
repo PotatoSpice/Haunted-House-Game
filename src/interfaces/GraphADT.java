@@ -1,5 +1,6 @@
 package interfaces;
 
+import collections.exceptions.ElementNotFoundException;
 import collections.exceptions.EmptyCollectionException;
 
 import java.util.Iterator;
@@ -33,7 +34,7 @@ public interface GraphADT<T> {
     /**
      * Returns an iterator that contains the shortest path between    * the two vertices.     *    * @param startVertex   the starting vertex    * @param targetVertex  the ending vertex    * @return              an iterator that contains the shortest     *                      path between the two vertices
      */
-    public Iterator iteratorShortestPath(T startVertex, T targetVertex) throws EmptyCollectionException;
+    public Iterator iteratorShortestPath(T startVertex, T targetVertex) throws EmptyCollectionException, ElementNotFoundException;
 
     /**
      * Returns true if this graph is empty, false otherwise.     *    * @return  true if this graph is empty

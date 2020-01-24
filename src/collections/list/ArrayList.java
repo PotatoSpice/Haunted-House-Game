@@ -50,7 +50,7 @@ public class ArrayList<T> implements ListADT<T> {
         // Shift all the elements "backwards". This will replace the first
         // element, which is the one we want to remove
         shiftArrayBackward(0, count - 1);
-        
+
         count--;
         modCount++;
         return temp;
@@ -65,7 +65,7 @@ public class ArrayList<T> implements ListADT<T> {
         T temp = list[count - 1];
         // Simply turn the last element to null, no shifting needed
         list[count - 1] = null;
-        
+
         count--;
         modCount++;
         return temp;
@@ -83,11 +83,11 @@ public class ArrayList<T> implements ListADT<T> {
         if (element.equals(list[0])) {
             remove = list[0];
             elem = 0;
-            
+
         } else if (element.equals(list[count - 1])) {
             remove = list[count - 1];
             elem = count - 1;
-            
+
         } else {
             // search for the element
             boolean found = false;
@@ -99,19 +99,19 @@ public class ArrayList<T> implements ListADT<T> {
                     elem++;
                 }
             }
-            
+
             if (!found) {
                 throw new ElementNotFoundException();
             }
-            
+
             remove = list[elem];
         }
-        
-        // shift all the elements "backwards". 
-        // This will replace the element we want to remove with the one 
+
+        // shift all the elements "backwards".
+        // This will replace the element we want to remove with the one
         // that procedes it in the array, null if it's the last
         shiftArrayBackward(elem, count - 1);
-        
+
         count--;
         modCount++;
         return remove;

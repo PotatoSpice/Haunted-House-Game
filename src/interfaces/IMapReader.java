@@ -1,6 +1,7 @@
 package interfaces;
 
 import collections.list.unordered.ArrayUnorderedList;
+import controllers.DirectedNetwork;
 import models.MapModel;
 import models.RoomModel;
 
@@ -29,6 +30,6 @@ public interface IMapReader {
      * @param roomModels The List Containing the RoomModels
      * @return the Network Oriented Graph loaded with Rooms and their weights
      */
-    NetworkADT loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels);
+    DirectedNetwork<String> loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels);
 
 }
