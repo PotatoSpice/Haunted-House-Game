@@ -1,12 +1,13 @@
 package models;
 
+import collections.exceptions.EmptyCollectionException;
 import collections.list.unordered.ArrayUnorderedList;
 
 public class RoomModel {
 
-    private String roomname; //
+    private String roomName; //
     private int phantom; //
-    private ArrayUnorderedList<String> roomconections; //
+    private ArrayUnorderedList<String> roomConnections; //
 
 
     /**
@@ -17,13 +18,13 @@ public class RoomModel {
      * @param roomconections Connections: Have the names of the rooms to which connections exist
      */
     public RoomModel(String roomname, int phantom, ArrayUnorderedList<String> roomconections) {
-        this.roomname = roomname;
+        this.roomName = roomname;
         this.phantom = phantom;
-        this.roomconections = roomconections;
+        this.roomConnections = roomconections;
     }
 
     public String getRoomname() {
-        return roomname;
+        return roomName;
     }
 
     public int getPhantom() {
@@ -31,6 +32,28 @@ public class RoomModel {
     }
 
     public ArrayUnorderedList<String> getRoomconections() {
-        return roomconections;
+        return roomConnections;
+    }
+    
+    public boolean hasEntrance() {
+        try {
+            return roomConnections.contains("entrada");
+        } catch (EmptyCollectionException ex) {
+            return false;
+        }
+    }
+    
+    public boolean hasExterior() {
+        try {
+            return roomConnections.contains("exterior");
+        } catch (EmptyCollectionException ex) {
+            return false;
+        }
+    }
+    
+    @Override
+    public String toString() {
+        return "\n\troomname: " + roomName + " | phantom: " + phantom 
+                + " | connections: " + roomConnections.toString();
     }
 }

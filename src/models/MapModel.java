@@ -19,6 +19,21 @@ public class MapModel {
 
     public int getPoints() { return points; }
 
-    public ArrayUnorderedList getRooms() {return roomModels; }
+    public ArrayUnorderedList<RoomModel> getRooms() { return roomModels; }
+    
+    public RoomModel getEntranceRoom() {
+        java.util.Iterator<RoomModel> it = roomModels.iterator();
+        RoomModel room;
+        while (it.hasNext()) {
+            if ((room = it.next()).hasEntrance())
+                return room;
+        }
+        return null;
+    }
 
+    @Override
+    public String toString() {
+        return "mapname: " + name + " | healthpoints: " + points 
+                + " | rooms: " + roomModels.toString();
+    }
 }
