@@ -1,16 +1,22 @@
 package controllers;
 
+import collections.exceptions.EmptyCollectionException;
 import collections.list.unordered.ArrayUnorderedList;
+import collections.queue.ArrayQueue;
 import interfaces.IGameNetwork;
+import models.ClassificationModel;
 
 import java.util.Iterator;
+import java.util.Queue;
 
 public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T> {
 
     private String mapName;
+    private int moveCount = 0;
     private int difficulty=1;
     private T currentPosition;
     private int HP;
+    private ClassificationManager classificationManager; //A Iniciar no Construtor
     public GameNetwork(){
         super();
     }
@@ -63,11 +69,13 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
             HP = HP - adjMatrix[getIndex(currentPosition)][newIndex]*difficulty;
             if (stillAlive(HP)) {
                 currentPosition = newPosition;
+                moveCount++;
                 return true;
             } else {
                 return false;
             }
         }
+        moveCount++;
         return true;
     }
 
@@ -97,13 +105,34 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
     }
 
     @Override
-    public void saveClassification() {
-
+    public void saveClassification(String playerName) {
+        classificationManager.recordToFile(new ClassificationModel(mapName, playerName, HP, moveCount, difficulty));
     }
 
     @Override
-    public String getClassifications() {
-        return null;
+    public String getClassifications() throws EmptyCollectionException {
+        String returnString="REMAINING HP: ->\n";
+        ArrayQueue<String> movesQueue = getClassificationsQueueMoves();
+        ArrayQueue<String> HPQueue = getClassificationQueueHPremaining();
+
+        for(int ix=0; ix++ < movesQueue.size(); ix++){
+            returnString += ix + ": " + movesQueue.dequeue() + "\n";
+        }
+
+        returnString += "\n \n Number of moves: ->\n";
+
+        for(int ix=0; ix++ < HPQueue.size(); ix++){
+            returnString += ix  + ": " + HPQueue.dequeue() + "\n";
+        }
+        return returnString;
+    }
+
+    public ArrayQueue<String> getClassificationsQueueMoves(){
+        return classificationManager.getNumberMovesClassificationMap();
+    }
+
+    public ArrayQueue<String> getClassificationQueueHPremaining(){
+        return classificationManager.getRemainingHPClassificationMap();
     }
 
     public void setHP(int HP) {

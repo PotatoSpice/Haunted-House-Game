@@ -10,15 +10,15 @@ import java.util.Iterator;
 
 public class ClassificationManager {
 
-    ClassificationModel classificationModel;
+   // ClassificationModel classificationModel;
     String filepath, mapName;
-    public ClassificationManager(ClassificationModel classificationModel, String filepath, String mapName){
-        this.classificationModel=classificationModel;
+    public ClassificationManager(String filepath, String mapName){
+        //this.classificationModel=classificationModel;
         this.filepath=filepath;
         this.mapName = mapName;
     }
 
-    public void recordToFile(){
+    public void recordToFile(ClassificationModel classificationModel){
         Gson gson = new Gson(); // Instância gson para escrever o ficheiro Json
         File pathf = new File(this.filepath); // Ficheiro de destino
         JsonElement file = loadFromJSONFile(this.filepath);
