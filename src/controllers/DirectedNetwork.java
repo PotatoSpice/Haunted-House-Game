@@ -1,9 +1,8 @@
 package controllers;
+
 import collections.exceptions.ElementNotFoundException;
 import collections.exceptions.EmptyCollectionException;
 import collections.list.unordered.ArrayUnorderedList;
-import collections.queue.LinkedQueue;
-import collections.stack.LinkedStack;
 import interfaces.NetworkADT;
 import java.util.Iterator;
 
@@ -20,6 +19,23 @@ public class DirectedNetwork<T> extends Graph<T> implements NetworkADT<T> {
             }
         }
         return false;
+    }
+    
+    private boolean indexIsValid(int index) { 
+        return ((index < numVertices) && (index >= 0)); 
+    }
+    
+    /**
+     * @param index index of the vertex to measure
+     * @return true if its isolated, false otherwise
+     */
+    protected boolean isVertexIsolated(int index) {
+        int count = 0;
+        for(int ix=0; ix < numVertices; ix++){
+            if(adjMatrix[index][ix]>=0)
+                count++;
+        }
+        return (count<=1);
     }
 
     /**
@@ -69,11 +85,14 @@ public class DirectedNetwork<T> extends Graph<T> implements NetworkADT<T> {
      *
      * @param sourceIndex Indíce do vértice de partida
      * @param destinationIndex Indice do vértice de destino
+     * @return um iterador para o caminho encontrado através do algoritmo
+     * @throws collections.exceptions.ElementNotFoundException
      */
-    public Iterator<T> dijkstraAlgorithm(int sourceIndex, int destinationIndex) throws ElementNotFoundException {
+    protected Iterator<T> dijkstraAlgorithm(int sourceIndex, int destinationIndex) 
+            throws ElementNotFoundException {
 
         if(!indexIsValid(sourceIndex) && !indexIsValid(destinationIndex))
-            new ElementNotFoundException("Index is invalid");
+            throw new ElementNotFoundException("Index is invalid");
 
         int shortestPathValue[] = new int[numVertices];
         boolean vertexExistsInPath[] = new boolean[numVertices];
@@ -90,7 +109,8 @@ public class DirectedNetwork<T> extends Graph<T> implements NetworkADT<T> {
                 vertexExistsInPath[picked] = true;
 
                 for (int jx = 0; jx < numVertices; jx++) {
-                    if (!vertexExistsInPath[jx] && adjMatrix[picked][jx] != -1 && shortestPathValue[picked] < Integer.MAX_VALUE
+                    if (!vertexExistsInPath[jx] && adjMatrix[picked][jx] != -1 
+                            && shortestPathValue[picked] < Integer.MAX_VALUE
                             && shortestPathValue[picked] + adjMatrix[picked][jx] < shortestPathValue[jx]) {
                         shortestPathValue[jx] = shortestPathValue[picked] + adjMatrix[picked][jx];
                         previous[jx]=picked;
@@ -128,36 +148,13 @@ public class DirectedNetwork<T> extends Graph<T> implements NetworkADT<T> {
         return minimum_index;
     }
 
-    /**
-     * TEST MEHTOD: Imprime o array cotendo as distâncias
-     *
-     * @param shortestPathValue Array com distâncias entre os vértices
-     */
-    void printSolution(int shortestPathValue[]) {
-        System.out.println("Vertex \t\t Value of the Ghost");
-        for (int i = 0; i < numVertices-1; i++)
-            System.out.println(i + " \t\t " + shortestPathValue[i]);
-    }
-
-    /**
-     * @param index index of the vertex to measure
-     * @return true if its isolated, false otherwise
-     */
-    private boolean isVertexIsolated(int index){
-        int count = 0;
-        for(int ix=0; ix<numVertices; ix++){
-            if(adjMatrix[index][ix]>=0)
-                count++;
-        }
-        return (count<=1);
-    }
-
-
     @Override
-    public Iterator iteratorShortestPath(T startVertex, T targetVertex) throws ElementNotFoundException {
+    public Iterator iteratorShortestPath(T startVertex, T targetVertex) 
+            throws ElementNotFoundException {
         return dijkstraAlgorithm(getIndex(startVertex), getIndex(targetVertex));
     }
-
+    
+    @Override
     protected int getIndex(T vertex) {
         for (int i = 0; i < numVertices; i++)
             if (vertices[i].equals(vertex))
@@ -165,13 +162,7 @@ public class DirectedNetwork<T> extends Graph<T> implements NetworkADT<T> {
         return -1;
     }
 
-    private boolean indexIsValid(int index) { return ((index < numVertices) && (index >= 0)); }
-
-
-    public String testOnlyTOBEDELETED(){
-        return toString();
-    }
-
+    @Override
     public String toString() {
         if (numVertices == 0)
             return "Graph is empty";
@@ -196,33 +187,50 @@ public class DirectedNetwork<T> extends Graph<T> implements NetworkADT<T> {
             for (int j = 0; j < numVertices; j++) {
                 result += adjMatrix[i][j] + " ";
             }
-                result += "\n";
-            }
+            result += "\n";
+        }
 
-            /** Print the vertex values */
-            result += "\n\nVertex Values";
-            result += "\n-------------\n";
-            result += "index\tvalue\n\n";
+        /** Print the vertex values */
+        result += "\n\nVertex Values";
+        result += "\n-------------\n";
+        result += "index\tvalue\n\n";
 
-            for (int i = 0; i < numVertices; i++) {
-                result += "" + i + "\t";
-                result += vertices[i].toString() + "\n";
-            }
+        for (int i = 0; i < numVertices; i++) {
+            result += "" + i + "\t";
+            result += vertices[i].toString() + "\n";
+        }
 
-            /** Print the weights of the edges */
-            result += "\n\nWeights of Edges";
-            result += "\n----------------\n";
-            result += "index\tweight\n\n";
+        /** Print the weights of the edges */
+        result += "\n\nWeights of Edges";
+        result += "\n----------------\n";
+        result += "index\tweight\n\n";
 
-            for (int i = 0; i < numVertices; i++) {
-                for (int j = 0; j < numVertices; j++) {
-                    if (adjMatrix[i][j] >= 0) {
-                        result += i + " to " + j + "\t";
-                        result += adjMatrix[i][j] + "\n";
-                    }
+        for (int i = 0; i < numVertices; i++) {
+            for (int j = 0; j < numVertices; j++) {
+                if (adjMatrix[i][j] >= 0) {
+                    result += i + " to " + j + "\t";
+                    result += adjMatrix[i][j] + "\n";
                 }
             }
-            result += "\n";
-            return result;
         }
+        result += "\n";
+        return result;
+    }
+    
+    // METODOS TEMPORARIOS -----------------------------------------------------
+    
+    public String testOnlyTOBEDELETED(){
+        return toString();
+    }
+    
+    /**
+     * TEST MEHTOD: Imprime o array cotendo as distâncias
+     *
+     * @param shortestPathValue Array com distâncias entre os vértices
+     */
+    void printSolution(int shortestPathValue[]) {
+        System.out.println("Vertex \t\t Value of the Ghost");
+        for (int i = 0; i < numVertices-1; i++)
+            System.out.println(i + " \t\t " + shortestPathValue[i]);
+    }
 }

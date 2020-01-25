@@ -7,27 +7,66 @@ import java.util.Iterator;
 
 public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T> {
 
-    private String mapName;
-    private int difficulty=1;
+    private final int DEFAULT_HP = 100;
+    private final int DEFAULT_DIFFICULTY = 1;
+    
+    private final String mapName;
+    private final int difficulty;
     private T currentPosition;
-    private int HP;
-    public GameNetwork(){
+    private int currentHp;
+    
+    public GameNetwork(String mapName, T initialPosition) {
         super();
+        this.mapName = mapName;
+        this.currentPosition = initialPosition;
+        this.difficulty = DEFAULT_DIFFICULTY;
+        this.currentHp = DEFAULT_HP;
+    }
+    
+    public GameNetwork(String mapName, T initialPosition, int startHP) {
+        super();
+        this.mapName = mapName;
+        this.currentPosition = initialPosition;
+        this.difficulty = DEFAULT_DIFFICULTY;
+        this.currentHp = (startHP > 0 ? startHP : DEFAULT_HP);
+    }
+    
+    public GameNetwork(int difficulty, String mapName, T initialPosition) {
+        super();
+        this.mapName = mapName;
+        this.currentPosition = initialPosition;
+        this.difficulty = (difficulty > 0 && difficulty < 3 ? difficulty : DEFAULT_DIFFICULTY);
+        this.currentHp = DEFAULT_HP;
+    }
+    
+    public GameNetwork(int difficulty, String mapName, T initialPosition, int startHP) {
+        super();
+        this.mapName = mapName;
+        this.currentPosition = initialPosition;
+        this.difficulty = (difficulty > 0 && difficulty < 3 ? difficulty : DEFAULT_DIFFICULTY);
+        this.currentHp = (startHP > 0 ? startHP : DEFAULT_HP);
     }
 
     /**
      * @param index do vértice a ser verificado
      * @return true if it is, false if it isn't
      */
-    protected boolean isConnectedToExterior(int index){ return (adjMatrix[index][numVertices-1]>=0); }
-
-    @Override
-    public void setDifficulty(int difficulty) {
-        this.difficulty=difficulty;
+    protected boolean isConnectedToExterior(int index) { 
+        return (adjMatrix[index][numVertices-1] >= 0); 
     }
-
-    public int getDifficulty() {
-        return difficulty;
+    
+    /**
+     * @param newPosition nova posição
+     * @return true caso seja válido, falso caso seja inválido
+     */
+    protected boolean isMoveValid(T newPosition){
+        Iterator iterator = getRoomConnections(currentPosition).iterator();
+        while(iterator.hasNext()){
+            if(newPosition.equals(iterator.next())){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -42,26 +81,15 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
         return connectedRooms;
     }
 
-    /**
-     * @param newPosition nova posição
-     * @return true caso seja válido, falso caso seja inválido
-     */
-    public boolean isMoveValid(T newPosition){
-        Iterator iterator = getRoomConnections(currentPosition).iterator();
-        while(iterator.hasNext()){
-            if(newPosition.equals(iterator.next())){
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public boolean setNewPosition(T newPosition) { //Decidi não fazer verificações sobre o Vértice é ou não válido.
         int newIndex = getIndex(newPosition);
-        if (!isFinished(newIndex)) {
-            HP = HP - adjMatrix[getIndex(currentPosition)][newIndex]*difficulty;
-            if (stillAlive(HP)) {
+        
+        if (newPosition.equals("entrada"))
+            currentPosition = newPosition;
+        else if (!isFinished(newIndex)) {
+            currentHp = currentHp - adjMatrix[getIndex(currentPosition)][newIndex]*difficulty;
+            if (stillAlive(currentHp)) {
                 currentPosition = newPosition;
                 return true;
             } else {
@@ -72,23 +100,8 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
     }
 
     @Override
-    public void setInitialPosition(T initialPosition) {
-        currentPosition = initialPosition;
-    }
-
-    @Override
-    public T getCurrentPosition() {
-        return currentPosition;
-    }
-
-    @Override
     public boolean stillAlive(int remainingHP) {
-        return (remainingHP>0);
-    }
-
-    @Override
-    public int getHP() {
-        return HP;
+        return (remainingHP > 0);
     }
 
     @Override
@@ -105,16 +118,24 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
     public String getClassifications() {
         return null;
     }
-
-    public void setHP(int HP) {
-        this.HP = HP;
+    
+    @Override
+    public T getCurrentPosition() {
+        return currentPosition;
+    }
+    
+    @Override
+    public int getCurrentHp() {
+        return currentHp;
     }
 
+    @Override
     public String getMapName() {
         return mapName;
     }
-
-    public void setMapName(String mapName) {
-        this.mapName = mapName;
+    
+    @Override
+    public int getDifficulty() {
+        return difficulty;
     }
 }

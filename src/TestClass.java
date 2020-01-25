@@ -11,9 +11,9 @@ public class TestClass {
         MapReader mapReader = new MapReader();
 
         System.out.println(mapReader.loadMapFromJSON("./files/map1.json"));
-        mapReader.loadRooms(mapReader.getMapModel());
-        mapReader.loadGraphWithRoom(mapReader.getMapModel().getRooms());
+        // mapReader.loadRooms(mapReader.getMapModel());
         mapReader.loadGameInformation(1,"entrada");
+        mapReader.loadGraphWithRoom(mapReader.getMapModel().getRooms());
         System.out.println(mapReader.testOnlyTOBEDELETED());
         mapReader.printDijsktra();
 
@@ -21,7 +21,7 @@ public class TestClass {
         GameSimulation gameSimulation = new GameSimulation(gameNetwork);
         gameSimulation.simulation();
         System.out.println(gameSimulation.simulationString());
-
+        
     }
 
 }

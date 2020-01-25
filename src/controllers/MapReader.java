@@ -5,7 +5,6 @@ import collections.exceptions.EmptyCollectionException;
 import com.google.gson.*;
 import collections.list.unordered.ArrayUnorderedList;
 import interfaces.IMapReader;
-import interfaces.NetworkADT;
 import models.MapModel;
 import models.RoomModel;
 
@@ -15,9 +14,16 @@ import java.util.Iterator;
 
 public class MapReader implements IMapReader {
 
-    MapModel mapModel;
-    GameNetwork<String> mapNetwork = new GameNetwork<>();
-    ArrayUnorderedList<RoomModel> rooms = new ArrayUnorderedList<>();
+    private MapModel mapModel;
+    private GameNetwork<String> mapNetwork;
+    
+    @Deprecated
+    private ArrayUnorderedList<RoomModel> rooms = new ArrayUnorderedList<>();
+    
+    public MapReader() {
+        mapModel = null;
+        mapNetwork = null;
+    }
 
     public MapModel getMapModel() {
         return this.mapModel;
@@ -32,7 +38,7 @@ public class MapReader implements IMapReader {
             file = new FileReader(path);
             JsonParser parser = new JsonParser();
             jsonObject = parser.parse(file).getAsJsonObject();
-        } catch (FileNotFoundException ex) { // Retorna falso se o ficheiro não existir
+        } catch (FileNotFoundException ex) {
             System.err.println("ERROR:\n"
                     + "File not found. path: [" + path + "]");
             return false;
@@ -41,62 +47,74 @@ public class MapReader implements IMapReader {
             return false;
 
         JsonObject map = jsonObject;
-        JsonArray rooms = map.get("mapa").getAsJsonArray();
+        JsonArray json_rooms = map.get("mapa").getAsJsonArray();
         ArrayUnorderedList<RoomModel> roomModels = new ArrayUnorderedList<>();
-        for (int ix = 0; ix < rooms.size(); ix++) {
-            JsonObject room = rooms.get(ix).getAsJsonObject();
+        for (int ix = 0; ix < json_rooms.size(); ix++) {
+            JsonObject room = json_rooms.get(ix).getAsJsonObject();
             JsonArray roomconnections = room.get("ligacoes").getAsJsonArray();
             ArrayUnorderedList<String> connections = new ArrayUnorderedList<>();
             for (int jx = 0; jx < roomconnections.size(); jx++)
                 connections.addToRear(roomconnections.get(jx).getAsString());
-            RoomModel model = new RoomModel(room.get("aposento").getAsString(), room.get("fantasma").getAsInt(), connections);
+            RoomModel model = new RoomModel(room.get("aposento").getAsString(), 
+                    room.get("fantasma").getAsInt(), connections);
             roomModels.addToRear(model);
         }
 
-        mapModel = new MapModel(map.get("nome").getAsString(), map.get("pontos").getAsInt(), roomModels);
+        mapModel = new MapModel(map.get("nome").getAsString(), 
+                map.get("pontos").getAsInt(), roomModels);
         return true;
     }
 
-    //Apercebi-me que isto pode ter sido um erro no meu raciocínio e poderá sofrer alterações
-    @Override
-    public ArrayUnorderedList loadRooms(MapModel mapModel) {
-        rooms = mapModel.getRooms();
-        //System.out.println("Load test 1:" +mapModel.getRooms());
-        return rooms;
-    }
-
-    public GameNetwork loadGameInformation(int difficulty, String initialPosition){
-        mapNetwork.setHP(mapModel.getPoints());
-        mapNetwork.setMapName(mapModel.getName());
-        mapNetwork.setDifficulty(difficulty);
-        mapNetwork.setInitialPosition(initialPosition);
-        return  mapNetwork;
+    /**
+     * Carrega, para um grafo específico, toda a informação necessária ao para o
+     * início do jogo.
+     * 
+     * @param difficulty dificuldade do jogo
+     * @param initialPosition posição inicial do jogador
+     * @return 
+     */
+    public GameNetwork<String> loadGameInformation(int difficulty, String initialPosition) {
+        if (mapModel != null) {
+            mapNetwork = new GameNetwork<>(difficulty, mapModel.getName(), 
+                    initialPosition, mapModel.getPoints());
+            return mapNetwork;
+        }
+        return null;
     }
 
     @Override
     public DirectedNetwork<String> loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels) {
         ArrayUnorderedList<RoomModel> tempRoomModel = new ArrayUnorderedList<>();
-        Iterator iteratingRoom = rooms.iterator();
+        Iterator<RoomModel> iteratingRoom = mapModel.getRooms().iterator();
+        
         mapNetwork.addVertex("entrada");
         while (iteratingRoom.hasNext()) {
-            RoomModel room = (RoomModel) iteratingRoom.next();
+            RoomModel room = iteratingRoom.next();
             mapNetwork.addVertex(room.getRoomname());
             tempRoomModel.addToRear(room);
         }
         mapNetwork.addVertex("exterior");
 
-        Iterator tempIteratingRoom = tempRoomModel.iterator();
+        Iterator<RoomModel> tempIteratingRoom = tempRoomModel.iterator();
         while (tempIteratingRoom.hasNext()) {
-            RoomModel toCompareModel = (RoomModel) tempIteratingRoom.next();
+            RoomModel toCompareModel = tempIteratingRoom.next();
+            
             if (mapNetwork.checkVertexExistence(toCompareModel.getRoomname())) {
                 ArrayUnorderedList<String> connections = toCompareModel.getRoomconections();
-                Iterator connectionIterator = connections.iterator();
+                
+                Iterator<String> connectionIterator = connections.iterator();
                 while (connectionIterator.hasNext()) {
-                    String roomName = (String) connectionIterator.next();
-                    if (mapNetwork.checkVertexExistence(roomName) && !roomName.equals("entrada") && !roomName.equals("exterior")) {
-                        mapNetwork.addEdge(toCompareModel.getRoomname(), roomName, toCompareModel.getPhantom());
+                    String roomName = connectionIterator.next();
+                    if (mapNetwork.checkVertexExistence(roomName) 
+                            && !roomName.equals("entrada") 
+                            && !roomName.equals("exterior")) {
+                        mapNetwork.addEdge(toCompareModel.getRoomname(), 
+                                roomName, toCompareModel.getPhantom());
+                        
                     } else if (roomName.equals("entrada")) {
-                        mapNetwork.addEdge(toCompareModel.getRoomname(), roomName, toCompareModel.getPhantom());
+                        mapNetwork.addEdge(toCompareModel.getRoomname(), 
+                                roomName, toCompareModel.getPhantom());
+                        
                     } else if (roomName.equals("exterior")) {
                         mapNetwork.addEdge(toCompareModel.getRoomname(), roomName);
                     }
@@ -110,7 +128,18 @@ public class MapReader implements IMapReader {
     public String testOnlyTOBEDELETED() {
         return mapNetwork.testOnlyTOBEDELETED();
     }
+    
+    // METODOS TEMPORARIOS ---------------------------------------------------
 
+    //Apercebi-me que isto pode ter sido um erro no meu raciocínio e poderá sofrer alterações
+    @Deprecated
+    @Override
+    public ArrayUnorderedList loadRooms(MapModel mapModel) {
+        rooms = mapModel.getRooms();
+        //System.out.println("Load test 1:" +mapModel.getRooms());
+        return rooms;
+    }
+    
     /**
      * TEST METHOD ONLY
      */
