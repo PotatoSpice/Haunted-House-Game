@@ -83,7 +83,7 @@ public class MainMenu implements UpdateGameListener {
     
     /**
      * Redimensiona uma imagem para os tamanhos descritos.
-     * Retorna uma instância de {@link java.swing.ImageIcon}
+     * Retorna uma instância de java.swing.ImageIcon
      * 
      * @param path caminho para a imagem
      * @param w nova largura da imagem

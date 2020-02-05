@@ -3,7 +3,6 @@ package controllers;
 import collections.exceptions.ElementNotFoundException;
 import collections.exceptions.EmptyCollectionException;
 import collections.list.unordered.ArrayUnorderedList;
-import collections.queue.ArrayQueue;
 
 import java.util.Iterator;
 
@@ -29,6 +28,7 @@ public class GameSimulation {
      * Este método carrega os pontos de vida e os rooms da simulação do jogo, aplicando o algoritmo de djisktra
      *
      * @throws ElementNotFoundException
+     * @throws collections.exceptions.EmptyCollectionException
      */
     public void simulation() throws ElementNotFoundException, EmptyCollectionException {
         Iterator<String> roomIterator = this.gameNetwork.iteratorShortestPath("entrada", "exterior");

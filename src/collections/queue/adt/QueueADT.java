@@ -13,14 +13,14 @@ public interface QueueADT<T> {
     /** Removes and returns the element at the front of this queue.
      *
      * @return the element at the front of this queue
-     * @throws EmptyCollectionException
+     * @throws EmptyCollectionException if collection has no elements
      */
     public T dequeue() throws EmptyCollectionException;
 
     /** Returns without removing the element at the front of this queue.
      *
      * @return the first element in this queue
-     * @throws EmptyCollectionException
+     * @throws EmptyCollectionException if collection has no elements
      */
     public T first() throws EmptyCollectionException;
 

@@ -5,7 +5,7 @@ import collections.tree.heap.ArrayHeap;
 
 /** 
  * PriorityQueue demonstrates a priority queue using a Heap.
- * @param <T>
+ * @param <T> collection generic element
  */
 public class PriorityQueue<T> extends ArrayHeap<PriorityQueueNode<T>> {
 
@@ -32,7 +32,7 @@ public class PriorityQueue<T> extends ArrayHeap<PriorityQueueNode<T>> {
      * returns a reference to it.
      * 
      * @return  a reference to the next highest priority element in this queue
-     * @throws collections.exceptions.EmptyCollectionException
+     * @throws collections.exceptions.EmptyCollectionException if collection has no elements
      */
     public T removeNext() throws EmptyCollectionException {
         PriorityQueueNode<T> temp = (PriorityQueueNode<T>) super.removeMin();

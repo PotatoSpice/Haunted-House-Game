@@ -53,13 +53,11 @@ public class DirectedNetwork<T> extends Graph<T> implements NetworkADT<T> {
     }
 
     /**
-     *
-     *
      * @param vertex1 Vértice do começo
      * @param vertex2 Vértice do término
      * @return o valor do peso até ao final através do caminho de Dijkstra
-     * @throws EmptyCollectionException
-     * @throws ElementNotFoundException
+     * @throws EmptyCollectionException se a coleção estiver vazia
+     * @throws ElementNotFoundException se os elementos não forem encontrados
      */
     @Override
     public double shortestPathWeight(T vertex1, T vertex2) throws EmptyCollectionException, ElementNotFoundException {

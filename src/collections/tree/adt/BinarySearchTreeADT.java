@@ -22,8 +22,8 @@ public interface BinarySearchTreeADT<T> extends BinaryTreeADT<T> {
      *
      * @param targetElement the element to be removed from this tree
      * @return the element removed from this tree
-     * @throws ElementNotFoundException
-     * @throws EmptyCollectionException
+     * @throws ElementNotFoundException if target element is not found
+     * @throws EmptyCollectionException if collection has no elements
      */
     public T removeElement(T targetElement) throws ElementNotFoundException, EmptyCollectionException;
 
@@ -32,8 +32,8 @@ public interface BinarySearchTreeADT<T> extends BinaryTreeADT<T> {
      *
      * @param targetElement the element that the list will have all instances of
      * it removed
-     * @throws ElementNotFoundException
-     * @throws EmptyCollectionException
+     * @throws ElementNotFoundException if target element is not found
+     * @throws EmptyCollectionException if collection has no elements
      */
     public void removeAllOccurrences(T targetElement) throws ElementNotFoundException, EmptyCollectionException;
 
@@ -41,28 +41,28 @@ public interface BinarySearchTreeADT<T> extends BinaryTreeADT<T> {
      * Removes and returns the smallest element from this tree.
      *
      * @return the smallest element from this tree.
-     * @throws EmptyCollectionException
+     * @throws EmptyCollectionException if collection has no elements
      */
     public T removeMin() throws EmptyCollectionException;
 
     /** Removes and returns the largest element from this tree.
      *
      * @return the largest element from this tree
-     * @throws EmptyCollectionException
+     * @throws EmptyCollectionException if collection has no elements
      */
     public T removeMax() throws EmptyCollectionException;
 
     /** Returns a reference to the smallest element in this tree.
      *
      * @return a reference to the smallest element in this tree
-     * @throws EmptyCollectionException
+     * @throws EmptyCollectionException if collection has no elements
      */
     public T findMin() throws EmptyCollectionException;
 
     /** Returns a reference to the largest element in this tree.
      *
      * @return a reference to the largest element in this tree
-     * @throws EmptyCollectionException
+     * @throws EmptyCollectionException if collection has no elements
      */
     public T findMax() throws EmptyCollectionException;
 }

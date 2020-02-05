@@ -74,7 +74,7 @@ public class MapReader implements IMapReader {
      * 
      * @param difficulty dificuldade do jogo
      * @param initialPosition posição inicial do jogador
-     * @return 
+     * @return instancia do grafo do jogo
      */
     public GameNetwork<String> loadGameInformation(int difficulty, String initialPosition) {
         if (mapModel != null) {

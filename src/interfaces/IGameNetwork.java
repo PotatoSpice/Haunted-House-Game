@@ -1,30 +1,31 @@
 package interfaces;
 
-import collections.exceptions.EmptyCollectionException;
 import collections.list.unordered.ArrayUnorderedList;
 
 public interface IGameNetwork<T> extends  NetworkADT<T> {
 
     /**
-     *
-     * @param vertex
-     * @return
+     * Retorna todas as conexões do vértice requerido a outros vértices.
+     * 
+     * @param vertex vértice para verificação
+     * @return lista com todas as conexões
      */
     ArrayUnorderedList<T> getRoomConnections(T vertex);
 
     /**
      * Define a nova posição quando há uma mudança de aposento
-     * Verificará os estados, a quantidade de pontos de vida que restam e incrementará ao número de movimentos efetuados
+     * Verificará os estados, a quantidade de pontos de vida que restam e 
+     * incrementará ao número de movimentos efetuados
      *
-     *
-     * @param newPosition
-     * @return
+     * @param newPosition aposento para a nova posição
+     * @return true se a nova posição é válida, falso no contrário
      */
     boolean setNewPosition(T newPosition);
 
     /**
-     * Retorna a sua atual posição
-     * @return
+     * Retorna a posição atual (vértice atual) do grafo.
+     * 
+     * @return nome do aposento relativo à posição atual
      */
     T getCurrentPosition();
 
@@ -41,17 +42,17 @@ public interface IGameNetwork<T> extends  NetworkADT<T> {
     int getCurrentHp();
 
     /**
-     * @return
+     * @return nome do mapa relativo ao grafo
      */
     String getMapName();
 
     /**
-     * @return
+     * @return difficuldade relativa ao mapa
      */
     int getDifficulty();
 
     /**
-     *
+     * @param vertex vértice para verificação
      * @return true se o utilizador tiver atingido o índice do exterior, false se não
      */
     boolean isFinished(T vertex);

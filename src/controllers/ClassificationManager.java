@@ -187,7 +187,6 @@ public class ClassificationManager {
     /**
      * @param difficulty dificuldade a passar para verificar as classificações
      * @return uma String construida com as Strings das duas duas classificações
-     * @throws EmptyCollectionException
      */
     public String getClassifications(int difficulty){
         String returnString = "Number of Moves: ->\n";

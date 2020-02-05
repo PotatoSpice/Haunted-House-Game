@@ -3,7 +3,7 @@ package collections.tree.heap.priority_queue;
 /**
  * PriorityQueueNode represents a node in a priority queue
  * containing a comparable object, order, and a priority value.
- * @param <T>
+ * @param <T> collection generic element
  */
 public class PriorityQueueNode<T> implements Comparable<PriorityQueueNode> {
     private static int nextorder = 0;   

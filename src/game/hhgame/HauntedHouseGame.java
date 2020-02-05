@@ -23,7 +23,7 @@ import models.ClassificationModel;
 /**
  * Classe para o Jogo Manual.
  * 
- * Faz uso de um {@link java.swing.JPanel} para a gameplay.
+ * Faz uso de um java.swing.JPanel para a gameplay.
  * Gameplay baseia-se na utilização do método {@link #repaint()} para cada vez
  * que haja input do utilizador.
  * 
@@ -684,9 +684,14 @@ public class HauntedHouseGame extends JLabel {
                 g.setColor(new Color(10, 10, 10));
                 g.fillRect(OFFSETX, OFFSETY, cols * SPACE, rows * SPACE);
             }
-
-            // Current Room
+            
+            
             g.setColor(new Color(255,255,255));
+            // Help
+            String help = "Click Q to Quit Game (Warning! Game doesn't save!)";
+            g.drawString(help, 25, 25);
+            
+            // Current Room
             String current = "Current Room: " + gameNetwork.getCurrentPosition();
             g.drawString(current, 25, 50);
             
@@ -707,10 +712,6 @@ public class HauntedHouseGame extends JLabel {
             // Current Health
             String health = "Health Points: " + gameNetwork.getCurrentHp();
             g.drawString(health, 25, 75);
-			
-			// Help
-            String health = "Click Q to Quit Game (Warning! Game doesn't save!)";
-            g.drawString(health, 25, 25);
 
             GameElement item;
             // Desenhar todas as paredes

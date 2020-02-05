@@ -16,7 +16,8 @@ public class LinearNode<T> {
     /**
      * Creates a node storing the specified element.
      *
-     * @param elem element to be stored */
+     * @param elem element to be stored 
+     */
     public LinearNode(T elem) {
         next = null;
         element = elem;
@@ -25,7 +26,8 @@ public class LinearNode<T> {
     /**
      * Returns the node that follows this one.
      *
-     * @return LinearNode<> reference to next node */
+     * @return LinearNode reference to next node 
+     */
     public LinearNode<T> getNext() {
         return next;
     }
@@ -33,7 +35,8 @@ public class LinearNode<T> {
     /**
      * Sets the node that follows this one.
      *
-     * @param node node to follow this one */
+     * @param node node to follow this one 
+     */
     public void setNext(LinearNode<T> node) {
         next = node;
     }
@@ -41,7 +44,8 @@ public class LinearNode<T> {
     /**
      * Returns the element stored in this node.
      *
-     * @return T element stored at this node */
+     * @return T element stored at this node 
+     */
     public T getElement() {
         return element;
     }
@@ -49,7 +53,8 @@ public class LinearNode<T> {
     /**
      * Sets the element stored in this node.
      *
-     * @param elem element to be stored at this node */
+     * @param elem element to be stored at this node 
+     */
     public void setElement(T elem) {
         element = elem;
     }

@@ -14,7 +14,7 @@ public interface BinaryTreeADT<T> {
      * @param targetElement the element being sought in this tree
      * @return a reference to the specified target
      * @throws ElementNotFoundException if an element not found exception occurs
-     * @throws EmptyCollectionException
+     * @throws EmptyCollectionException if collection has no elements
      */
     public T find(T targetElement) throws ElementNotFoundException, EmptyCollectionException;
 
@@ -24,7 +24,7 @@ public interface BinaryTreeADT<T> {
      *
      * @param targetElement the element being sought in the tree
      * @return true if the tree contains the target element
-     * @throws EmptyCollectionException
+     * @throws EmptyCollectionException if collection has no elements
      */
     public boolean contains(T targetElement) throws EmptyCollectionException;
 

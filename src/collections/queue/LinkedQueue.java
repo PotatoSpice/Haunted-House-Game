@@ -53,7 +53,7 @@ public class LinkedQueue<T> implements QueueADT<T> {
      * Removes and returns the element at the front of this queue.
      *
      * @return the element at the front of this queue
-     * @throws collections.exceptions.EmptyCollectionException
+     * @throws collections.exceptions.EmptyCollectionException if collection has no elements
      */
     @Override
     public T dequeue() throws EmptyCollectionException {
@@ -70,7 +70,7 @@ public class LinkedQueue<T> implements QueueADT<T> {
      * Returns without removing the element at the front of this queue.
      *
      * @return the first element in this queue
-     * @throws collections.exceptions.EmptyCollectionException
+     * @throws collections.exceptions.EmptyCollectionException if collection has no elements
      */
     @Override
     public T first() throws EmptyCollectionException {
