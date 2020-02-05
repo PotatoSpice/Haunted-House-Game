@@ -688,7 +688,7 @@ public class HauntedHouseGame extends JLabel {
             // Current Room
             g.setColor(new Color(255,255,255));
             String current = "Current Room: " + gameNetwork.getCurrentPosition();
-            g.drawString(current, 25, 25);
+            g.drawString(current, 25, 50);
             
             // Door Rooms
             if (gameNetwork.getDifficulty() != 3) {
@@ -706,7 +706,11 @@ public class HauntedHouseGame extends JLabel {
             
             // Current Health
             String health = "Health Points: " + gameNetwork.getCurrentHp();
-            g.drawString(health, 25, 50);
+            g.drawString(health, 25, 75);
+			
+			// Help
+            String health = "Click Q to Quit Game (Warning! Game doesn't save!)";
+            g.drawString(health, 25, 25);
 
             GameElement item;
             // Desenhar todas as paredes
