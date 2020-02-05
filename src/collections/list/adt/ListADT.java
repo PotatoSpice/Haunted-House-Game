@@ -54,9 +54,8 @@ public interface ListADT<T> extends Iterable<T> {
      *
      * @param target the target that is being sought in the list
      * @return true if the list contains this element
-     * @throws EmptyCollectionException when list is empty
      */
-    public boolean contains(T target) throws EmptyCollectionException;
+    public boolean contains(T target);
 
     /**
      * Returns true if this list contains no elements.
