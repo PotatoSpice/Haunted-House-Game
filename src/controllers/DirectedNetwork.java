@@ -96,7 +96,7 @@ public class DirectedNetwork<T> extends Graph<T> implements NetworkADT<T> {
 
         int shortestPathValue[] = new int[numVertices];
         boolean vertexExistsInPath[] = new boolean[numVertices];
-        int[] previous = new int[numVertices];
+        Integer[] previous = new Integer[numVertices];
 
         for (int ix = 0; ix < numVertices; ix++) {
             shortestPathValue[ix]=Integer.MAX_VALUE;
@@ -109,7 +109,7 @@ public class DirectedNetwork<T> extends Graph<T> implements NetworkADT<T> {
                 vertexExistsInPath[picked] = true;
 
                 for (int jx = 0; jx < numVertices; jx++) {
-                    if (!vertexExistsInPath[jx] && adjMatrix[picked][jx] != -1 
+                    if (!vertexExistsInPath[jx] && adjMatrix[picked][jx] != null
                             && shortestPathValue[picked] < Integer.MAX_VALUE
                             && shortestPathValue[picked] + adjMatrix[picked][jx] < shortestPathValue[jx]) {
                         shortestPathValue[jx] = shortestPathValue[picked] + adjMatrix[picked][jx];
@@ -119,11 +119,10 @@ public class DirectedNetwork<T> extends Graph<T> implements NetworkADT<T> {
             }
         ArrayUnorderedList<T> resultList = new ArrayUnorderedList<>();
         int target = destinationIndex;
-        if (previous[target] != -1) {
+        if (previous[target] != null) {
             while (target != -1) {
                 resultList.addToFront(this.vertices[target]);
                 target = previous[target];
-
             }
         }
         printSolution(shortestPathValue);
@@ -207,7 +206,7 @@ public class DirectedNetwork<T> extends Graph<T> implements NetworkADT<T> {
 
         for (int i = 0; i < numVertices; i++) {
             for (int j = 0; j < numVertices; j++) {
-                if (adjMatrix[i][j] >= 0) {
+                if (adjMatrix[i][j] != null) {
                     result += i + " to " + j + "\t";
                     result += adjMatrix[i][j] + "\n";
                 }

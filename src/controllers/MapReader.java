@@ -133,17 +133,6 @@ public class MapReader implements IMapReader {
         return mapNetwork.testOnlyTOBEDELETED();
     }
     
-    // METODOS TEMPORARIOS ---------------------------------------------------
-
-    //Apercebi-me que isto pode ter sido um erro no meu raciocínio e poderá sofrer alterações
-    @Deprecated
-    @Override
-    public ArrayUnorderedList loadRooms(MapModel mapModel) {
-        rooms = mapModel.getRooms();
-        //System.out.println("Load test 1:" +mapModel.getRooms());
-        return rooms;
-    }
-    
     /**
      * TEST METHOD FOR THE DJISKTRA PATH
      * IMPLEMENTATION IS DONE IN GAMESIMULATION CLASS
@@ -154,11 +143,5 @@ public class MapReader implements IMapReader {
         while (iterator.hasNext()) {
             System.out.println(iterator.next());
         }
-    }
-
-
-    //TEST METHOD:
-    public GameNetwork<String> getGame(){
-        return mapNetwork;
     }
 }

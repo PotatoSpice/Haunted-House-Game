@@ -336,7 +336,7 @@ public class MainMenu implements UpdateGameListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             
-            JFileChooser chooser = new JFileChooser("./files/map1.json");
+            JFileChooser chooser = new JFileChooser("./files/maps/map1.json");
             chooser.setDialogTitle("Selecionar um ficheiro .json"); 
 
             chooser.setAcceptAllFileFilterUsed(false);

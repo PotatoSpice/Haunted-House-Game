@@ -1,0 +1,11 @@
+{
+  "nome": "exame-ed",
+  "pontos": 100,
+  "mapa": [
+    {"aposento": "auditorio1", "fantasma": 0, "ligacoes": ["entrada", "auditorio4"]},
+    {"aposento": "auditorio4", "fantasma": 15, "ligacoes": ["auditorio1", "p5"]},
+    {"aposento": "p5", "fantasma": 5, "ligacoes": ["p5", "auditorio1", "auditorio4"]},
+    {"aposento": "p4", "fantasma": 20, "ligacoes": ["p5","exterior"]},
+    {"aposento": "p12", "fantasma": 0, "ligacoes": ["p5", "exterior"]}
+  ]
+}

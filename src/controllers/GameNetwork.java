@@ -53,7 +53,7 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
      * @return true if it is, false if it isn't
      */
     protected boolean isConnectedToExterior(int index) {
-        return (adjMatrix[index][numVertices-1] >= 0);
+        return (adjMatrix[index][numVertices-1] != null);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
         ArrayUnorderedList<T> connectedRooms = new ArrayUnorderedList<>();
         int index = getIndex(vertex);
         for(int ix=0; ix<numVertices; ix++){
-            if(adjMatrix[index][ix]>=0){
+            if(adjMatrix[index][ix]!=null){
                connectedRooms.addToRear(vertices[ix]);
             }
         }

@@ -52,6 +52,10 @@ public class ClassificationManager {
         }
     }
 
+    /**
+     * @param filepath caminho para o ficheiro contendo a informação
+     * @return Elemento JSON com informação do ficheiro
+     */
     private JsonElement loadFromJSONFile(String filepath) {
         JsonElement json;
         try {
@@ -66,7 +70,6 @@ public class ClassificationManager {
             return null;
 
         counter++;
-        System.out.println(counter + " IT HAS INFO\n");
         return json;
     }
 
@@ -190,11 +193,10 @@ public class ClassificationManager {
         String returnString = "Number of Moves: ->\n";
         ArrayQueue<String> movesQueue = getNumberMovesClassificationMap(difficulty);
         ArrayQueue<String> HPQueue = getRemainingHPClassificationMap(difficulty);
-        int queueSize = movesQueue.size() + 1;
-
+        int queueSize = movesQueue.size();
         if(!movesQueue.isEmpty()) {
             int counterEntry = 0;
-            for (int ix = 0; ix++ < queueSize; ix++) {
+            for (int ix = 0; ix< queueSize; ix++) {
                 counterEntry++;
                 try {
                     returnString = returnString + counterEntry + ": " + movesQueue.dequeue() + "\n";
@@ -206,7 +208,7 @@ public class ClassificationManager {
             counterEntry = 0;
             returnString += "\n \nRemaining HP: ->\n";
 
-            for (int ix = 0; ix++ < queueSize; ix++) {
+            for (int ix = 0; ix < queueSize; ix++) {
                 counterEntry++;
                 try {
                     returnString = returnString + counterEntry + ": " + HPQueue.dequeue() + "\n";
@@ -219,11 +221,5 @@ public class ClassificationManager {
             return "Map without classifications";
 
     }
-
-
-    //TEST METHOD ONLY
-   /* public String printClassifications(){
-        return getRemainingHPClassificationMap().toString();
-    } */
 
 }
