@@ -52,6 +52,10 @@ public class ClassificationManager {
         }
     }
 
+    /**
+     * @param filepath caminho para o ficheiro contendo a informação
+     * @return Elemento JSON com informação do ficheiro
+     */
     private JsonElement loadFromJSONFile(String filepath) {
         JsonElement json;
         try {
@@ -66,7 +70,6 @@ public class ClassificationManager {
             return null;
 
         counter++;
-        System.out.println(counter + " IT HAS INFO\n");
         return json;
     }
 
@@ -219,11 +222,5 @@ public class ClassificationManager {
             return "Map without classifications";
 
     }
-
-
-    //TEST METHOD ONLY
-   /* public String printClassifications(){
-        return getRemainingHPClassificationMap().toString();
-    } */
 
 }

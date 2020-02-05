@@ -12,14 +12,12 @@ public class TestClass {
 
         MapReader mapReader = new MapReader();
 
-        System.out.println(mapReader.loadMapFromJSON("./files/map1.json"));
-        //mapReader.loadRooms(mapReader.getMapModel());
+        System.out.println(mapReader.loadMapFromJSON("./files/mapT.json"));
         mapReader.loadGameInformation(3,"entrada");
-        mapReader.loadGraphWithRoom(mapReader.getMapModel().getRooms());
+        GameNetwork<String> gameNetwork=  mapReader.loadGraphWithRoom(mapReader.getMapModel().getRooms());
         System.out.println(mapReader.testOnlyTOBEDELETED());
         mapReader.printDijsktra();
 
-        GameNetwork<String> gameNetwork = mapReader.getGame();
         GameSimulation gameSimulation = new GameSimulation(gameNetwork);
         gameSimulation.simulation();
         System.out.println(gameSimulation.simulationString());

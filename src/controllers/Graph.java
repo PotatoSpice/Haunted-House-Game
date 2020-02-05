@@ -13,12 +13,12 @@ public class Graph<T> implements GraphADT<T> {
 
     protected final int DEFAULT_CAPACITY = 10;
     protected int numVertices;   // number of vertices in the graph
-    protected int[][] adjMatrix;   // adjacency matrix
+    protected Integer[][] adjMatrix;   // adjacency matrix
     protected T[] vertices;   // values of vertices
 
     public Graph() {
         numVertices = 0;
-        this.adjMatrix = new int[DEFAULT_CAPACITY][DEFAULT_CAPACITY];
+        this.adjMatrix = new Integer[DEFAULT_CAPACITY][DEFAULT_CAPACITY];
         this.vertices = (T[])(new Object[DEFAULT_CAPACITY]);
     }
 
@@ -29,8 +29,8 @@ public class Graph<T> implements GraphADT<T> {
 
         vertices[numVertices] = vertex;
         for (int i = 0; i <= numVertices; i++) {
-            adjMatrix[numVertices][i] = -1;
-            adjMatrix[i][numVertices] = -1;
+            adjMatrix[numVertices][i] = null;
+            adjMatrix[i][numVertices] = null;
         }
         numVertices++;
     }
@@ -81,8 +81,8 @@ public class Graph<T> implements GraphADT<T> {
         int index1 = getIndex(vertex1);
         int index2 = getIndex(vertex2);
         if(indexIsValid(index1) && indexIsValid(index2)) {
-            adjMatrix[index1][index2] = -1;
-            adjMatrix[index2][index1] = -1;
+            adjMatrix[index1][index2] = null;
+            adjMatrix[index2][index1] = null;
         }
     }
 
@@ -212,8 +212,7 @@ public class Graph<T> implements GraphADT<T> {
      */
     private void expandCapacity () {
         T[] largerVertices = (T[]) (new Object[vertices.length * 2]);
-        int[][] largerAdjMatrix = new int[vertices.length * 2][vertices.length * 2];
-        boolean[][] largerBooleanMatrix = new boolean[vertices.length * 2][vertices.length * 2];
+        Integer[][] largerAdjMatrix = new Integer[vertices.length * 2][vertices.length * 2];
         for (int ix = 0; ix < numVertices; ix++) {
             for (int jx = 0; jx < numVertices; jx++) {
                 largerAdjMatrix[ix][jx] = adjMatrix[ix][jx];
