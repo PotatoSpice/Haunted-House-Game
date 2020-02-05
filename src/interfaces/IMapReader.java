@@ -1,7 +1,7 @@
 package interfaces;
 
 import collections.list.unordered.ArrayUnorderedList;
-import controllers.DirectedNetwork;
+import controllers.GameNetwork;
 import models.MapModel;
 import models.RoomModel;
 
@@ -37,6 +37,6 @@ public interface IMapReader {
      * @param roomModels The List Containing the RoomModels
      * @return the Network Oriented Graph loaded with Rooms and their weights
      */
-    DirectedNetwork<String> loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels);
+    GameNetwork<String> loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels);
 
 }

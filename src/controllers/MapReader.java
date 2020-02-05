@@ -12,6 +12,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Iterator;
 
+/**
+ * Esta classe é responsável pela leitura em JSON e sua respetiva conversão para um grafo e informação de jogo
+ */
 public class MapReader implements IMapReader {
 
     private MapModel mapModel;
@@ -83,7 +86,7 @@ public class MapReader implements IMapReader {
     }
 
     @Override
-    public DirectedNetwork<String> loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels) {
+    public GameNetwork<String> loadGraphWithRoom(ArrayUnorderedList<RoomModel> roomModels) {
         ArrayUnorderedList<RoomModel> tempRoomModel = new ArrayUnorderedList<>();
         Iterator<RoomModel> iteratingRoom = mapModel.getRooms().iterator();
         
@@ -141,9 +144,10 @@ public class MapReader implements IMapReader {
     }
     
     /**
-     * TEST METHOD ONLY
+     * TEST METHOD FOR THE DJISKTRA PATH
+     * IMPLEMENTATION IS DONE IN GAMESIMULATION CLASS
      */
-    public void printDijsktra() throws ElementNotFoundException, EmptyCollectionException {
+    public void printDijsktra() throws ElementNotFoundException{
         Iterator iterator = mapNetwork.dijkstraAlgorithm(0, mapNetwork.numVertices - 1);
         System.out.println("Entrou " + iterator.hasNext());
         while (iterator.hasNext()) {

@@ -13,15 +13,15 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
 
     private final int DEFAULT_HP = 100;
     private final int DEFAULT_DIFFICULTY = 1;
-    
+
     private final String mapName;
     private final int difficulty;
     private T currentPosition;
     private int currentHp;
-    
+
     private int moveCount = 0;
     private ClassificationManager classificationManager; //A Iniciar no Construtor
-    
+
     public GameNetwork(String mapName, T initialPosition) {
         super();
         this.mapName = mapName;
@@ -29,7 +29,7 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
         this.difficulty = DEFAULT_DIFFICULTY;
         this.currentHp = DEFAULT_HP;
     }
-    
+
     public GameNetwork(String mapName, T initialPosition, int startHP) {
         super();
         this.mapName = mapName;
@@ -37,20 +37,20 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
         this.difficulty = DEFAULT_DIFFICULTY;
         this.currentHp = (startHP > 0 ? startHP : DEFAULT_HP);
     }
-    
+
     public GameNetwork(int difficulty, String mapName, T initialPosition) {
         super();
         this.mapName = mapName;
         this.currentPosition = initialPosition;
-        this.difficulty = (difficulty > 0 && difficulty < 3 ? difficulty : DEFAULT_DIFFICULTY);
+        this.difficulty = (difficulty > 0 && difficulty <= 3 ? difficulty : DEFAULT_DIFFICULTY);
         this.currentHp = DEFAULT_HP;
     }
-    
+
     public GameNetwork(int difficulty, String mapName, T initialPosition, int startHP) {
         super();
         this.mapName = mapName;
         this.currentPosition = initialPosition;
-        this.difficulty = (difficulty > 0 && difficulty < 3 ? difficulty : DEFAULT_DIFFICULTY);
+        this.difficulty = (difficulty > 0 && difficulty <= 3 ? difficulty : DEFAULT_DIFFICULTY);
         this.currentHp = (startHP > 0 ? startHP : DEFAULT_HP);
     }
 
@@ -58,22 +58,8 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
      * @param index do vértice a ser verificado
      * @return true if it is, false if it isn't
      */
-    protected boolean isConnectedToExterior(int index) { 
-        return (adjMatrix[index][numVertices-1] >= 0); 
-    }
-    
-    /**
-     * @param newPosition nova posição
-     * @return true caso seja válido, falso caso seja inválido
-     */
-    protected boolean isMoveValid(T newPosition){
-        Iterator iterator = getRoomConnections(currentPosition).iterator();
-        while(iterator.hasNext()){
-            if(newPosition.equals(iterator.next())){
-                return true;
-            }
-        }
-        return false;
+    protected boolean isConnectedToExterior(int index) {
+        return (adjMatrix[index][numVertices-1] >= 0);
     }
 
     @Override
@@ -88,72 +74,55 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
         return connectedRooms;
     }
 
+    /**
+     * Este método verifica se uma nova posição é válida, de forma a evitar bugs.
+     *
+     * @param newPosition nova posição
+     * @return true caso seja válido, falso caso seja inválido
+     */
+    public boolean isMoveValid(T newPosition){
+        Iterator iterator = getRoomConnections(currentPosition).iterator();
+        while(iterator.hasNext()){
+            if(newPosition.equals(iterator.next())){
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean setNewPosition(T newPosition) { //Decidi não fazer verificações sobre o Vértice é ou não válido.
         int newIndex = getIndex(newPosition);
-        
+
         if (newPosition.equals("entrada"))
             currentPosition = newPosition;
-        else if (!isFinished(newIndex)) {
+        else if (!isFinished(newPosition)) {
             currentHp = currentHp - adjMatrix[getIndex(currentPosition)][newIndex]*difficulty;
-            if (stillAlive(currentHp)) {
+            if (stillAlive()) {
                 currentPosition = newPosition;
-                moveCount++;
                 return true;
             } else {
                 return false;
             }
         }
-        moveCount++;
-        return true;
+        return false;
     }
 
     @Override
-    public boolean stillAlive(int remainingHP) {
-        return (remainingHP > 0);
+    public boolean stillAlive() {
+        return (currentHp> 0);
     }
 
     @Override
-    public boolean isFinished(int index) {
-        return index==numVertices-1;
+    public boolean isFinished(T vertex) {
+        return getIndex(vertex)==numVertices-1;
     }
 
-    @Override
-    public void saveClassification(String playerName) {
-        classificationManager.recordToFile(new ClassificationModel(mapName, playerName, currentHp, moveCount, difficulty));
-    }
-
-    @Override
-    public String getClassifications() throws EmptyCollectionException {
-        String returnString="REMAINING HP: ->\n";
-        ArrayQueue<String> movesQueue = getClassificationsQueueMoves();
-        ArrayQueue<String> HPQueue = getClassificationQueueHPremaining();
-
-        for(int ix=0; ix++ < movesQueue.size(); ix++){
-            returnString += ix + ": " + movesQueue.dequeue() + "\n";
-        }
-
-        returnString += "\n \n Number of moves: ->\n";
-
-        for(int ix=0; ix++ < HPQueue.size(); ix++){
-            returnString += ix  + ": " + HPQueue.dequeue() + "\n";
-        }
-        return returnString;
-    }
-
-    public ArrayQueue<String> getClassificationsQueueMoves(){
-        return classificationManager.getNumberMovesClassificationMap();
-    }
-
-    public ArrayQueue<String> getClassificationQueueHPremaining(){
-        return classificationManager.getRemainingHPClassificationMap();
-    }
-    
     @Override
     public T getCurrentPosition() {
         return currentPosition;
     }
-    
+
     @Override
     public int getCurrentHp() {
         return currentHp;
@@ -163,7 +132,7 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
     public String getMapName() {
         return mapName;
     }
-    
+
     @Override
     public int getDifficulty() {
         return difficulty;
