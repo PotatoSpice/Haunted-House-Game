@@ -26,6 +26,9 @@ import models.ClassificationModel;
  * Faz uso de um {@link java.swing.JPanel} para a gameplay.
  * Gameplay baseia-se na utilização do método {@link #repaint()} para cada vez
  * que haja input do utilizador.
+ * 
+ * A sua construção foi inspirada pelo jogo 'Sokoban' implementado no
+ * repositório - https://github.com/janbodnar/Java-Sokoban-Game.
  */
 public class HauntedHouseGame extends JLabel {
     
@@ -61,6 +64,12 @@ public class HauntedHouseGame extends JLabel {
     private ClassificationManager classifManager;
     private UpdateGameListener updateGameListener;
     
+    /**
+     * Construtor para a classe de jogo manual da casa assombrada.
+     * 
+     * @param windowW largura da janela do jogo
+     * @param windowH altura da janela do jogo
+     */
     public HauntedHouseGame(int windowW, int windowH) {
         super.setFocusable(true);
         super.setIcon(MainMenu.getSizedImage("files/img/background.jpg", windowW, windowH));
@@ -74,6 +83,13 @@ public class HauntedHouseGame extends JLabel {
         this.level = new char[rows][cols];
     }
     
+    /**
+     * Método obrigatório para inicio do jogo.
+     * Configura o nome do jogador e o grafo relativo ao mapa.
+     * 
+     * @param playerName nome do jogador
+     * @param gameNetwork grafo relativo ao mapa do jogo
+     */
     public void setupGame(String playerName, GameNetwork gameNetwork) {
         this.playerName = playerName;
         this.gameNetwork = gameNetwork;
@@ -81,49 +97,60 @@ public class HauntedHouseGame extends JLabel {
         isCompleted = isDead = isGhost = false;
     }
     
+    /**
+     * Inicializa a intância do jogo.
+     * 
+     * O final do jogo é sinalizado através do 'listener' enviado por parâmetro,
+     * que deverá ser implementado pela classe que chame este método.
+     * 
+     * @param listener {@link game.hhgame.HauntedHouseGame.UpdateGameListener}
+     *                  com os métodos a serem implementados
+     * @param classif intância de classificações relativa a este jogo
+     */
     public void startGame(UpdateGameListener listener, ClassificationManager classif) {
         if (isSetup) {
             updateGameListener = listener;
             classifManager = classif;
-            restartGame();
-        }
-    }
-    
-    private void restartGame() {
-        
-        clearBuildRoomWalls();
+            
+            clearBuildRoomWalls();
 
-        try {
-            entranceRoom = gameNetwork.getRoomConnections("entrada").first();
-        } catch (EmptyCollectionException exc) {}
+            try {
+                entranceRoom = gameNetwork.getRoomConnections("entrada").first();
+            } catch (EmptyCollectionException exc) {}
 
-        gameNetwork.setNewPosition(entranceRoom);
+            gameNetwork.setNewPosition(entranceRoom);
 
-        level[rows / 2][cols / 2] = '@'; // player position
+            level[rows / 2][cols / 2] = '@'; // player position
 
-        // Adicionar portas para as outras conexões
-        Iterator<String> it = gameNetwork.getRoomConnections(entranceRoom).iterator();
-        String room;
-        while (it.hasNext()) {
-            room = it.next();
-            if (topWallRoom == null) {
-                level[0][cols / 2] = '$';
-                topWallRoom = room;
+            // Adicionar portas para as outras conexões
+            Iterator<String> it = gameNetwork.getRoomConnections(entranceRoom).iterator();
+            String room;
+            while (it.hasNext()) {
+                room = it.next();
+                if (topWallRoom == null) {
+                    level[0][cols / 2] = '$';
+                    topWallRoom = room;
 
-            } else if (rightWallRoom == null) {
-                level[rows / 2][cols - 1] = '$';
-                rightWallRoom = room;
+                } else if (rightWallRoom == null) {
+                    level[rows / 2][cols - 1] = '$';
+                    rightWallRoom = room;
 
-            } else if (leftWallRoom == null) {
-                level[rows / 2][0] = '$';
-                leftWallRoom = room;
+                } else if (leftWallRoom == null) {
+                    level[rows / 2][0] = '$';
+                    leftWallRoom = room;
 
+                }
             }
-        }
 
-        prepareGraphicsFromMatrix();
+            prepareGraphicsFromMatrix();
+        }
     }
     
+    /**
+     * Método de construção da matriz que representa o mapa do jogo.
+     * 
+     * Controi todas as paredes da sala, tal como "limpa" todo o espaço interior.
+     */
     private void clearBuildRoomWalls() {
         // Construir Paredes
         for (int i = 0; i < rows; i++) {
@@ -144,14 +171,19 @@ public class HauntedHouseGame extends JLabel {
         }
     }
     
+    /**
+     * Método de construção da matriz que representa o mapa do jogo.
+     * 
+     * Controi todas as portas relativas ao aposento atual.<br/>
+     * Adiciona portas consoante a posição inicial do player, relativamente ao 
+     * aposento anterior. Isto é, se o player no aposento anterior entrar numa 
+     * porta do lado direito, a sua posição seguinte será em frente à porta do 
+     * lado esquerdo do novo aposento.
+     */
     private void buildRoomDoors() {
         String current = gameNetwork.getCurrentPosition();
         ArrayUnorderedList<String> roomConn = gameNetwork.getRoomConnections(current);
         
-        // adicionar portas consoante a posição inicial do player, relativo
-        // ao aposento anterior, isto é se o player no aposento anterior
-        // entrar numa porta do lado direito, inicia na porta do lado esquerdo
-        // do novo aposento
         if (topWallRoom != null) {
             level[0][cols / 2] = '$';
             level[1][cols / 2] = '@';
@@ -262,6 +294,17 @@ public class HauntedHouseGame extends JLabel {
         }
     }
     
+    /**
+     * Verifica se o 'player' colidiu com uma porta, atravessando para o aposento
+     * respetivo.
+     * 
+     * É aqui verificado se o jogo foi concluído, chegando ao exterior ou levando
+     * o HP a 0.
+     * 
+     * @param type lado da colisão {@link #BOTTOM_COLLISION}, {@link #TOP_COLLISION}, 
+     *              {@link #LEFT_COLLISION} ou {@link #RIGHT_COLLISION}
+     * @return true se houve colisão, false no contrário
+     */
     private boolean checkDoorCollision(int type) {
         boolean collision = false;
         Iterator<RoomDoor> it = doors.iterator();
@@ -415,6 +458,13 @@ public class HauntedHouseGame extends JLabel {
         return collision;
     }
     
+    /**
+     * Verifica se o 'player' colidiu com uma parede, não o deixando atravessar.
+     * 
+     * @param type lado da colisão {@link #BOTTOM_COLLISION}, {@link #TOP_COLLISION}, 
+     *              {@link #LEFT_COLLISION} ou {@link #RIGHT_COLLISION}
+     * @return true se houve colisão, false no contrário
+     */
     private boolean checkWallCollision(int type) {
 
         switch (type) {
@@ -465,6 +515,12 @@ public class HauntedHouseGame extends JLabel {
         return false;
     }
     
+    /**
+     * 'Listener' para os cliques do teclado.
+     * 
+     * É verificado para cada clique nas setas de direção a colisão com uma parede
+     * ou porta, sendo realizado o respetivo movimento consoante.
+     */
     private class KeyBoardListener extends KeyAdapter {
         
         @Override
@@ -528,6 +584,16 @@ public class HauntedHouseGame extends JLabel {
     
     }
 
+    /**
+     * Preparação das variáveis para construção dos gráficos do jogo a partir
+     * da matriz construída a cada movimento do jogador.
+     * 
+     * Legenda caracteres:<br/>
+     * # - parede;
+     * $ - porta;
+     * @ - posição do player;
+     * ' ' - espaço vazio;
+     */
     private void prepareGraphicsFromMatrix() {
         
         walls = new ArrayUnorderedList<>();
@@ -573,6 +639,14 @@ public class HauntedHouseGame extends JLabel {
         }
     }
     
+    /**
+     * Contrução dos gráficos para a imagem de apresentação do jogo.
+     * 
+     * Aqui é desenhado o mapa da sala, tal como algumas informações relevantes
+     * em formato textual.
+     * 
+     * @param g instância de gráficos da imagem do jogo
+     */
     private void renderGameGraphics(Graphics g) {
         g.setFont(font);
         if (isCompleted) {   
@@ -661,6 +735,10 @@ public class HauntedHouseGame extends JLabel {
         SwingUtilities.updateComponentTreeUI(this);
     }
     
+    /**
+     * Interface que deve ser implementada pela classe que inicialize uma intância
+     * do jogo descrito por esta classe, para permitir o fecho do jogo.
+     */
     public interface UpdateGameListener {
         void stopGame();
     }

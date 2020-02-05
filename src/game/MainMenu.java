@@ -522,6 +522,12 @@ public class MainMenu implements UpdateGameListener {
         }
     }
     
+    /**
+     * Constrói uma "flavor" string para descrição do caminho mais eficiente
+     * para concluir o jogo.
+     * 
+     * @return String com formatação html para o texto do caminho da simulação
+     */
     private String getSimulationPath() {
         try {
             String path = "<html><center>";
