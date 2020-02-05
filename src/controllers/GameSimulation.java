@@ -30,11 +30,12 @@ public class GameSimulation {
      *
      * @throws ElementNotFoundException
      */
-    public void simulation() throws ElementNotFoundException {
-        Iterator roomIterator = this.gameNetwork.iteratorShortestPath("entrada", "exterior");
-        gameNetwork.setInitialPosition((String)roomIterator.next());
+    public void simulation() throws ElementNotFoundException, EmptyCollectionException {
+        Iterator<String> roomIterator = this.gameNetwork.iteratorShortestPath("entrada", "exterior");
+
+        gameNetwork.setNewPosition(roomIterator.next());
         while(roomIterator.hasNext()){
-            String room = (String)roomIterator.next();
+            String room = roomIterator.next();
             if(gameNetwork.isFinished(gameNetwork.getIndex(room))){
                 break;
             }
@@ -48,8 +49,8 @@ public class GameSimulation {
                 break;
             }
             simulationRooms.addToRear(room);
-            hpPerStage.addToRear(gameNetwork.getHP());
-            this.counter++;
+            hpPerStage.addToRear(gameNetwork.getCurrentHp());
+            counter++;
         }
     }
 

@@ -6,10 +6,10 @@ import collections.list.unordered.ArrayUnorderedList;
 public interface IGameNetwork<T> extends  NetworkADT<T> {
 
     /**
-     * @param difficulty
+     *
+     * @param vertex
+     * @return
      */
-    void setDifficulty(int difficulty);
-
     ArrayUnorderedList<T> getRoomConnections(T vertex);
 
     /**
@@ -21,8 +21,6 @@ public interface IGameNetwork<T> extends  NetworkADT<T> {
      * @return
      */
     boolean setNewPosition(T newPosition);
-
-    void setInitialPosition(T initialPosition);
 
     /**
      * Retorna a sua atual posição
@@ -41,7 +39,17 @@ public interface IGameNetwork<T> extends  NetworkADT<T> {
     /**
      * @return os Pontos de Vida atualmente presentes
      */
-    int getHP();
+    int getCurrentHp();
+
+    /**
+     * @return
+     */
+    String getMapName();
+
+    /**
+     * @return
+     */
+    int getDifficulty();
 
     /**
      * @param index índice da posição do aposento onde se encontra o jogador

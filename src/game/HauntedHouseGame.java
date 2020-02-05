@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
 public class HauntedHouseGame extends Thread {
     
     // Janela Principal
-    private final MainGame main = null;
+    private MainGame main = null;
     
     // Graficos
     private Canvas canvas;
@@ -38,18 +38,22 @@ public class HauntedHouseGame extends Thread {
                 ? Transparency.TRANSLUCENT : Transparency.OPAQUE);
     }
     
-    public HauntedHouseGame(final MainGame game) {
+    public HauntedHouseGame(MainGame main) {
         super();
-        width = game.width;
-        height = game.height;
-        scale = game.getScale();
+        width = main.width;
+        height = main.height;
+        scale = main.getScale();
+        this.main = main;
+    }
+    
+    public void startGame() {
+        // window.addWindowListener(new FrameClose());
         
         // Canvas
-        canvas = new Canvas(game.config);
+        canvas = new Canvas(main.config);
         canvas.setSize(width * scale, height * scale);
         
-        game.getMainWindow().removeAll();
-        game.getMainWindow().add(canvas, 0);
+        main.setMainGameWindow(canvas);
 
         // Background & Buffer
         background = create(width, height, false);
@@ -57,6 +61,8 @@ public class HauntedHouseGame extends Thread {
         do {
             strategy = canvas.getBufferStrategy();
         } while (strategy == null);
+        
+        start();
     }
 
     // Screen and buffer stuff
@@ -180,9 +186,9 @@ public class HauntedHouseGame extends Thread {
         // Image img = Toolkit.getDefaultToolkit().getImage("./files/img/pepe.gif");
         // g.drawImage(img, width, height, null);
         
-        g.setColor(Color.GRAY);
-        g.fillRect(width - 50, height - 50, 200, 200);
         g.setColor(randomColor);
+        g.fillRect(width / 2, height / 2, 100, 100);
+        g.setColor(Color.YELLOW);
         g.drawString("FPS: " + currentFPS, 20, 25);
         // g.fillRect(0, 0, width, height);
     }
