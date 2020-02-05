@@ -193,11 +193,10 @@ public class ClassificationManager {
         String returnString = "Number of Moves: ->\n";
         ArrayQueue<String> movesQueue = getNumberMovesClassificationMap(difficulty);
         ArrayQueue<String> HPQueue = getRemainingHPClassificationMap(difficulty);
-        int queueSize = movesQueue.size() + 1;
-
+        int queueSize = movesQueue.size();
         if(!movesQueue.isEmpty()) {
             int counterEntry = 0;
-            for (int ix = 0; ix++ < queueSize; ix++) {
+            for (int ix = 0; ix< queueSize; ix++) {
                 counterEntry++;
                 try {
                     returnString = returnString + counterEntry + ": " + movesQueue.dequeue() + "\n";
@@ -209,7 +208,7 @@ public class ClassificationManager {
             counterEntry = 0;
             returnString += "\n \nRemaining HP: ->\n";
 
-            for (int ix = 0; ix++ < queueSize; ix++) {
+            for (int ix = 0; ix < queueSize; ix++) {
                 counterEntry++;
                 try {
                     returnString = returnString + counterEntry + ": " + HPQueue.dequeue() + "\n";
