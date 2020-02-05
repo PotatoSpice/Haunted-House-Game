@@ -190,6 +190,10 @@ public class Graph<T> implements GraphADT<T> {
         return numVertices;
     }
 
+    /**
+     * @param vertex a retirar o índice
+     * @return o índice, -1 se for não existir
+     */
     protected int getIndex(T vertex) {
         for (int i = 0; i < numVertices; i++)
             if (vertices[i].equals(vertex))
@@ -197,6 +201,10 @@ public class Graph<T> implements GraphADT<T> {
         return -1;
     }
 
+    /**
+     * @param index Indíce a verificar se está contido nos intervalos
+     * @return true se estiver, false se não estiver
+     */
     private boolean indexIsValid(int index) { return ((index < numVertices) && (index >= 0)); }
 
     /**

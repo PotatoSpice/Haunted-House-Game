@@ -49,15 +49,4 @@ public interface IGameNetwork<T> extends  NetworkADT<T> {
      */
     boolean isFinished(int index);
 
-    /**
-     * Guarda a classificação do jogador num ficheiro do tipo json.
-     * @param playerName Nickname do jogador
-     */
-    void saveClassification(String playerName);
-
-    /**
-     * @return String com as classificações totais para o mapa
-     */
-    String getClassifications() throws EmptyCollectionException;
-
 }

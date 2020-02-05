@@ -49,6 +49,8 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
     }
 
     /**
+     * Este método verifica se uma nova posição é válida, de forma a evitar bugs.
+     *
      * @param newPosition nova posição
      * @return true caso seja válido, falso caso seja inválido
      */
@@ -102,37 +104,6 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
     @Override
     public boolean isFinished(int index) {
         return index==numVertices-1;
-    }
-
-    @Override
-    public void saveClassification(String playerName) {
-        classificationManager.recordToFile(new ClassificationModel(mapName, playerName, HP, moveCount, difficulty));
-    }
-
-    @Override
-    public String getClassifications() throws EmptyCollectionException {
-        String returnString="REMAINING HP: ->\n";
-        ArrayQueue<String> movesQueue = getClassificationsQueueMoves();
-        ArrayQueue<String> HPQueue = getClassificationQueueHPremaining();
-
-        for(int ix=0; ix++ < movesQueue.size(); ix++){
-            returnString += ix + ": " + movesQueue.dequeue() + "\n";
-        }
-
-        returnString += "\n \n Number of moves: ->\n";
-
-        for(int ix=0; ix++ < HPQueue.size(); ix++){
-            returnString += ix  + ": " + HPQueue.dequeue() + "\n";
-        }
-        return returnString;
-    }
-
-    public ArrayQueue<String> getClassificationsQueueMoves(){
-        return classificationManager.getNumberMovesClassificationMap();
-    }
-
-    public ArrayQueue<String> getClassificationQueueHPremaining(){
-        return classificationManager.getRemainingHPClassificationMap();
     }
 
     public void setHP(int HP) {

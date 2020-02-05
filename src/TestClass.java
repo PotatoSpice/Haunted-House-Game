@@ -1,8 +1,10 @@
 import collections.exceptions.ElementNotFoundException;
 import collections.exceptions.EmptyCollectionException;
+import controllers.ClassificationManager;
 import controllers.GameNetwork;
 import controllers.GameSimulation;
 import controllers.MapReader;
+import models.ClassificationModel;
 
 public class TestClass {
 
@@ -21,6 +23,10 @@ public class TestClass {
         GameSimulation gameSimulation = new GameSimulation(gameNetwork);
         gameSimulation.simulation();
         System.out.println(gameSimulation.simulationString());
+
+        ClassificationManager classificationManager = new ClassificationManager("./files/classificationsTest","sexta-feira 13");
+       // classificationManager.recordToFile(new ClassificationModel("sexta-feira 13","playerRand",16, 10, 3));
+        System.out.println(classificationManager.getClassifications(3));
 
     }
 
