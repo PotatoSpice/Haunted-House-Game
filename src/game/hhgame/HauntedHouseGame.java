@@ -3,6 +3,7 @@ package game.hhgame;
 import collections.exceptions.ElementNotFoundException;
 import collections.exceptions.EmptyCollectionException;
 import collections.list.unordered.ArrayUnorderedList;
+import controllers.ClassificationManager;
 import controllers.GameNetwork;
 import game.MainMenu;
 import game.hhgame.models.GameElement;
@@ -10,14 +11,14 @@ import game.hhgame.models.Player;
 import game.hhgame.models.RoomDoor;
 import game.hhgame.models.RoomWall;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import models.ClassificationModel;
 
 /**
  * Classe para o Jogo Manual.
@@ -37,6 +38,7 @@ public class HauntedHouseGame extends JLabel {
     public static final int BOTTOM_COLLISION = 4;
     
     // Janela e Gráficos Jogo
+    private final Font font = new Font("Gabriola", Font.BOLD, 22);
     private final int windowW;
     private final int windowH;
 
@@ -52,78 +54,77 @@ public class HauntedHouseGame extends JLabel {
     
     private GameNetwork<String> gameNetwork;
     private String playerName;
-    private int difficulty;
     
     private String entranceRoom, topWallRoom, bottomWallRoom, leftWallRoom, rightWallRoom;
     
-    private boolean isSetup, isCompleted, isDead;
-    private StopGameListener stopGameListener;
+    private boolean isSetup, isCompleted, isDead, isGhost;
+    private ClassificationManager classifManager;
+    private UpdateGameListener updateGameListener;
     
-    public HauntedHouseGame(int worldRows, int worldCols, int windowW, int windowH) {
+    public HauntedHouseGame(int windowW, int windowH) {
         super.setFocusable(true);
         super.setIcon(MainMenu.getSizedImage("files/img/background.jpg", windowW, windowH));
         
-        this.rows = worldRows;
-        this.cols = worldCols;
+        this.rows = 15;
+        this.cols = 17;
         this.windowW = windowW;
         this.windowH = windowH;
         
         super.addKeyListener(new KeyBoardListener());
         this.level = new char[rows][cols];
-        
-        isSetup = isCompleted = isDead = false;
     }
     
-    public void setupGame(String playerName, int difficulty, GameNetwork gameNetwork) {
+    public void setupGame(String playerName, GameNetwork gameNetwork) {
         this.playerName = playerName;
-        this.difficulty = difficulty;
         this.gameNetwork = gameNetwork;
         isSetup = true;
+        isCompleted = isDead = isGhost = false;
     }
     
-    public void startGame(StopGameListener listener) {
+    public void startGame(UpdateGameListener listener, ClassificationManager classif) {
         if (isSetup) {
-            stopGameListener = listener;
-            buildRoomWalls();
-
-            try {
-                entranceRoom = gameNetwork.getRoomConnections("entrada").first();
-            } catch (EmptyCollectionException exc) {}
-
-            gameNetwork.setNewPosition(entranceRoom);
-            // SET ENTRANCE ROOM DOORS! diferente do buildRoomDoors()
-            // player pode começar no meio
-
-            level[rows / 2][cols / 2] = '@'; // player position
-
-            bottomWallRoom = "entrada";
-
-            // Adicionar portas para as outras conexões
-            Iterator<String> it = gameNetwork.getRoomConnections(entranceRoom).iterator();
-            String room;
-            while (it.hasNext()) {
-                room = it.next();
-                if (topWallRoom == null) {
-                    level[0][cols / 2] = '$';
-                    topWallRoom = room;
-
-                } else if (rightWallRoom == null) {
-                    level[rows / 2][cols - 1] = '$';
-                    rightWallRoom = room;
-
-                } else if (leftWallRoom == null) {
-                    level[rows / 2][0] = '$';
-                    leftWallRoom = room;
-
-                }
-            }
-
-            prepareGraphicsFromMatrix();
+            updateGameListener = listener;
+            classifManager = classif;
+            restartGame();
         }
     }
     
-    private void buildRoomWalls() {
+    private void restartGame() {
         
+        clearBuildRoomWalls();
+
+        try {
+            entranceRoom = gameNetwork.getRoomConnections("entrada").first();
+        } catch (EmptyCollectionException exc) {}
+
+        gameNetwork.setNewPosition(entranceRoom);
+
+        level[rows / 2][cols / 2] = '@'; // player position
+
+        // Adicionar portas para as outras conexões
+        Iterator<String> it = gameNetwork.getRoomConnections(entranceRoom).iterator();
+        String room;
+        while (it.hasNext()) {
+            room = it.next();
+            if (topWallRoom == null) {
+                level[0][cols / 2] = '$';
+                topWallRoom = room;
+
+            } else if (rightWallRoom == null) {
+                level[rows / 2][cols - 1] = '$';
+                rightWallRoom = room;
+
+            } else if (leftWallRoom == null) {
+                level[rows / 2][0] = '$';
+                leftWallRoom = room;
+
+            }
+        }
+
+        prepareGraphicsFromMatrix();
+    }
+    
+    private void clearBuildRoomWalls() {
         // Construir Paredes
         for (int i = 0; i < rows; i++) {
             if (i == 0) {
@@ -138,8 +139,7 @@ public class HauntedHouseGame extends JLabel {
                 level[i][0] = '#';
                     for (int j = 1; j < cols - 1; j++)
                         level[i][j] = ' ';
-                    level[i][cols - 1] = '#';
-                    
+                    level[i][cols - 1] = '#'; 
             }
         }
     }
@@ -147,13 +147,11 @@ public class HauntedHouseGame extends JLabel {
     private void buildRoomDoors() {
         String current = gameNetwork.getCurrentPosition();
         ArrayUnorderedList<String> roomConn = gameNetwork.getRoomConnections(current);
-        System.out.println("Current Rooms: " + roomConn.toString());
         
-        // VERIFICAR VARIAVEIS topWallRoom, etc.
-        // - adicionar a porta ao lado que não está null
-        // - gerar portas aleatorio para os outros 3 sitios, consoante o numero
-        // de conexoes
-        
+        // adicionar portas consoante a posição inicial do player, relativo
+        // ao aposento anterior, isto é se o player no aposento anterior
+        // entrar numa porta do lado direito, inicia na porta do lado esquerdo
+        // do novo aposento
         if (topWallRoom != null) {
             level[0][cols / 2] = '$';
             level[1][cols / 2] = '@';
@@ -262,152 +260,159 @@ public class HauntedHouseGame extends JLabel {
                 }
             }
         }
-        
-        /*
-        int random = (int) Math.ceil(Math.random() * 4);
-        // Adicionar porta para a "room" anterior à atual 
-        // Colocar o player à frente desta porta
-        switch (random) {
-            case 1: // top wall
-                level[0][cols / 2] = '$';
-                level[1][cols / 2] = '@';
-                break;
-            case 2: // bottom wall
-                level[rows - 1][cols / 2] = '$';
-                level[rows - 2][cols / 2] = '@';
-                break;
-            case 3: // left wall
-                level[rows / 2][0] = '$';
-                level[rows / 2][1] = '@';
-                break;
-            default: // right wall
-                level[rows / 2][cols - 1] = '$';
-                level[rows / 2][cols - 2] = '@';
-        }
-        */
     }
     
     private boolean checkDoorCollision(int type) {
+        boolean collision = false;
+        Iterator<RoomDoor> it = doors.iterator();
         
-        switch (type) {
-            
+        switch (type) {    
             case LEFT_COLLISION:
-                // go through left side door
-                for (Iterator<RoomDoor> it = doors.iterator(); it.hasNext(); ) {
+                while (it.hasNext() && collision == false) {
                     RoomDoor door = it.next();
                     
+                    // verificar colisão com a porta esquerda
                     if (player.isLeftCollision(door)) {
-                        
+                        // verificar se o player chegou ao exterior
                         if (gameNetwork.isFinished(leftWallRoom)) {
                             isCompleted = true;
                             
                         } else {
+                            // guardar temporariamente o aposento anterior
+                            String temp = gameNetwork.getCurrentPosition();
+                            // verificar HP do player
                             if (!gameNetwork.setNewPosition(leftWallRoom)) {
                                 isDead = true;
                                 
                             } else {
-                                rightWallRoom = gameNetwork.getCurrentPosition();
+                                // avançar para o próximo aposento
+                                int hp = gameNetwork.getCurrentHp();
+                                rightWallRoom = temp;
                                 leftWallRoom = topWallRoom = bottomWallRoom = null;
-                                buildRoomWalls();
-                                buildRoomDoors();
-                                prepareGraphicsFromMatrix();
-                                repaint();
+                                
+                                isGhost = hp < gameNetwork.getCurrentHp();
                             }
                         }
-                        return true;
+                        collision = true;
                     }
                 }
                 break;
                 
-            case RIGHT_COLLISION:                
-                // go through right side door
-                for (Iterator<RoomDoor> it = doors.iterator(); it.hasNext(); ) {
+            case RIGHT_COLLISION:
+                while (it.hasNext() && collision == false) {
                     RoomDoor door = it.next();
-                    
+                    // verificar colisão com a porta direita
                     if (player.isRightCollision(door)) {
-                        
+                        // verificar se o player chegou ao exterior
                         if (gameNetwork.isFinished(rightWallRoom)) {
                             isCompleted = true;
                             
                         } else {
+                            // guardar temporariamente o aposento anterior
+                            String temp = gameNetwork.getCurrentPosition();
+                            // verificar HP do player
                             if (!gameNetwork.setNewPosition(rightWallRoom)) {
                                 isDead = true;
                                 
                             } else {
-                                leftWallRoom = gameNetwork.getCurrentPosition();
-                                gameNetwork.setNewPosition(rightWallRoom);
+                                // avançar para o próximo aposento
+                                int hp = gameNetwork.getCurrentHp();
+                                leftWallRoom = temp;
                                 rightWallRoom = topWallRoom = bottomWallRoom = null;
-                                buildRoomWalls();
-                                buildRoomDoors();
-                                prepareGraphicsFromMatrix();
-                                repaint();
+                                
+                                isGhost = hp < gameNetwork.getCurrentHp();
                             }
                         }
-                        return true;
+                        
+                        collision = true;
                     }
                 }
                 break;
                 
             case TOP_COLLISION:
-                // go through top side door
-                for (Iterator<RoomDoor> it = doors.iterator(); it.hasNext(); ) {
+                while (it.hasNext() && collision == false) {
                     RoomDoor door = it.next();
-                    
+                    // verificar colisão com a porta de cima
                     if (player.isTopCollision(door)) {
+                        // verificar se o player chegou ao exterior
                         if (gameNetwork.isFinished(topWallRoom)) {
                             isCompleted = true;
                             
                         } else {
+                            // guardar temporariamente o aposento anterior
+                            String temp = gameNetwork.getCurrentPosition();
+                            // verificar HP do player
                             if (!gameNetwork.setNewPosition(topWallRoom)) {
                                 isDead = true;
                                 
                             } else {
-                                bottomWallRoom = gameNetwork.getCurrentPosition();
-                                gameNetwork.setNewPosition(topWallRoom);
+                                // avançar para o próximo aposento
+                                int hp = gameNetwork.getCurrentHp();
+                                bottomWallRoom = temp;
                                 leftWallRoom = topWallRoom = rightWallRoom = null;
-                                buildRoomWalls();
-                                buildRoomDoors();
-                                prepareGraphicsFromMatrix();
-                                repaint();
+                                
+                                isGhost = hp < gameNetwork.getCurrentHp();
                             }
                         }
-                        return true;
+                        
+                        collision = true;
                     }
                 }
                 break;
                 
             case BOTTOM_COLLISION:
-                // go through bottom side door
-                for (Iterator<RoomDoor> it = doors.iterator(); it.hasNext(); ) {
+                while (it.hasNext() && collision == false) {
                     RoomDoor door = it.next();
-                    
+                    // verificar colisão com a porta de baixo
                     if (player.isBottomCollision(door)) {
+                        // verificar se o player chegou ao exterior
                         if (gameNetwork.isFinished(bottomWallRoom)) {
                             isCompleted = true;
                             
                         } else {
+                            // guardar temporariamente o aposento anterior
+                            String temp = gameNetwork.getCurrentPosition();
+                            // verificar HP do player
                             if (!gameNetwork.setNewPosition(bottomWallRoom)) {
                                 isDead = true;
                                 
                             } else {
-                                topWallRoom = gameNetwork.getCurrentPosition();
-                                gameNetwork.setNewPosition(bottomWallRoom);
+                                // avançar para o próximo aposento
+                                int hp = gameNetwork.getCurrentHp();
                                 leftWallRoom = bottomWallRoom = rightWallRoom = null;
-                                buildRoomWalls();
-                                buildRoomDoors();
-                                prepareGraphicsFromMatrix();
-                                repaint();
+                                topWallRoom = temp;
+                                isGhost = hp < gameNetwork.getCurrentHp();
                             }
                         }
-                        return true;
                         
+                        collision = true;
                     }
                 }
                 break;
                 
             default:
         }
-        return false;
+        
+        if (collision) {
+            // jogo acabado, escrever classificações
+            if (isCompleted) {
+                classifManager.recordToFile(
+                        new ClassificationModel(gameNetwork.getMapName(), playerName, 
+                                gameNetwork.getCurrentHp(), gameNetwork.getMoveCount(), 
+                                gameNetwork.getDifficulty()));
+                
+            } else 
+                // construir próximo aposento se o player ainda não morreu
+                if(!isDead) {
+                clearBuildRoomWalls();
+                buildRoomDoors();
+                prepareGraphicsFromMatrix();
+                
+            }
+            repaint();
+        }
+        
+        return collision;
     }
     
     private boolean checkWallCollision(int type) {
@@ -512,7 +517,7 @@ public class HauntedHouseGame extends JLabel {
                     
                 case KeyEvent.VK_Q:
                     isSetup = false;
-                    stopGameListener.stopGame();
+                    updateGameListener.stopGame();
                     break;
                     
                 default:
@@ -569,45 +574,82 @@ public class HauntedHouseGame extends JLabel {
     }
     
     private void renderGameGraphics(Graphics g) {
-        
-        g.setColor(new Color(10, 10, 10));
-        g.fillRect(OFFSETX, OFFSETY, cols * SPACE, rows * SPACE);
-        
-        g.setColor(new Color(255,255,255));
-        String current = "Current Room: " + gameNetwork.getCurrentPosition();
-        g.drawString(current, 25, 25);
-        g.drawString("Top Room: " + (topWallRoom != null ? topWallRoom : "none"), OFFSETX, 25);
-        g.drawString("Left Room: " + (leftWallRoom != null ? leftWallRoom : "none"), OFFSETX - 50, 50);
-        g.drawString("Right Room: " + (rightWallRoom != null ? rightWallRoom : "none"), OFFSETX + 50, 50);
-        g.drawString("Bottom Room: " + (bottomWallRoom != null ? bottomWallRoom : "none"), OFFSETX, 75);
-        String health = "Health Points: " + gameNetwork.getCurrentHp();
-        g.drawString(health, 25, 50);
-
-        ArrayUnorderedList<GameElement> world = new ArrayUnorderedList<>();
-
-        for (Iterator<RoomWall> it = walls.iterator(); it.hasNext(); ) {
-            world.addToRear(it.next());
-        }
-        for (Iterator<RoomDoor> it = doors.iterator(); it.hasNext(); ) {
-            world.addToRear(it.next());
-        }
-        world.addToRear(player);
-
-        for (Iterator<GameElement> it = world.iterator(); it.hasNext(); ) {
-            GameElement item = it.next();
-
-            if (item instanceof Player || item instanceof RoomDoor) {
-                g.drawImage(item.getImage(), item.getX() + 2, item.getY() + 2, null);
+        g.setFont(font);
+        if (isCompleted) {   
+            g.setColor(new Color(10, 10, 10));
+            g.fillRect(OFFSETX, OFFSETY, cols * SPACE, rows * SPACE);
+            g.drawImage(MainMenu.getSizedImage("files/img/win.jpg", 
+                    cols * SPACE / 2, rows * SPACE / 2).getImage(), 
+                    OFFSETX + 5, OFFSETY + 5, null);
+            g.setColor(new Color(255, 255, 255));
+            g.drawString("YOU WIN", 
+                    (cols * SPACE) + (rows / 2), (rows * SPACE) + (cols / 2));
+            g.drawString("Press Q to exit!", 
+                    (cols * SPACE) + 20, (rows * SPACE) + (cols / 2) + 20);
+            
+        } else if (isDead) {   
+            g.setColor(new Color(255, 255, 255));
+            g.fillRect(OFFSETX, OFFSETY, cols * SPACE, rows * SPACE);
+            g.drawImage(MainMenu.getSizedImage("files/img/dead.jpg", 
+                    cols * SPACE, rows * SPACE).getImage(), 
+                    OFFSETX, OFFSETY, null);
+            g.setColor(new Color(10, 10, 10));
+            g.drawString("YOU DEAD", 
+                    OFFSETX + 20, OFFSETY + 20);
+            g.drawString("Press Q to exit!", 
+                    OFFSETX - 100, OFFSETY + 40);
+            
+        } else {
+            // Room Floor
+            if (isGhost) {
+                g.setColor(new Color(240, 240, 240));
+                g.fillRect(OFFSETX, OFFSETY, cols * SPACE, rows * SPACE);
+                g.drawImage(MainMenu.getSizedImage("files/img/ghost.jpg", cols * SPACE, rows * SPACE)
+                        .getImage(), OFFSETX, OFFSETY, null);
             } else {
-                g.drawImage(item.getImage(), item.getX(), item.getY(), null);
-            }
-
-            if (isCompleted) {   
                 g.setColor(new Color(10, 10, 10));
                 g.fillRect(OFFSETX, OFFSETY, cols * SPACE, rows * SPACE);
-                g.setColor(new Color(255, 255, 255));
-                g.drawString("YOU WIN", (cols * SPACE) + (rows / 2), (rows * SPACE) + (cols / 2));
             }
+
+            // Current Room
+            g.setColor(new Color(255,255,255));
+            String current = "Current Room: " + gameNetwork.getCurrentPosition();
+            g.drawString(current, 25, 25);
+            
+            // Door Rooms
+            if (gameNetwork.getDifficulty() != 3) {
+                int w = (OFFSETX + ((cols * SPACE) / 2)) - 75, 
+                        y = (OFFSETY + ((rows * SPACE) / 2)) - 75;
+                g.drawString("Top Room: " + (topWallRoom != null ? topWallRoom : "none"), 
+                        w, 25);
+                g.drawString("Left Room: " + (leftWallRoom != null ? leftWallRoom : "none"), 
+                        w - 100, 50);
+                g.drawString("Right Room: " + (rightWallRoom != null ? rightWallRoom : "none"), 
+                        w + 100, 50);
+                g.drawString("Bottom Room: " + (bottomWallRoom != null ? bottomWallRoom : "none"), 
+                        w, 75);
+            }
+            
+            // Current Health
+            String health = "Health Points: " + gameNetwork.getCurrentHp();
+            g.drawString(health, 25, 50);
+
+            GameElement item;
+            // Desenhar todas as paredes
+            for (Iterator<RoomWall> it = walls.iterator(); it.hasNext(); ) {
+                item = it.next();
+                
+                g.drawImage(item.getImage(), item.getX(), item.getY(), null);
+            }
+            // Desenhar todas a portas
+            for (Iterator<RoomDoor> it = doors.iterator(); it.hasNext(); ) {
+                item = it.next();
+                
+                g.drawImage(item.getImage(), item.getX() + 2, item.getY() + 2, null);
+            }
+            // Desenhar o player
+            item = player;
+            g.drawImage(item.getImage(), item.getX() + 2, item.getY() + 2, null);
         }
     }
     
@@ -616,9 +658,10 @@ public class HauntedHouseGame extends JLabel {
         super.paintComponent(g);
 
         renderGameGraphics(g);
+        SwingUtilities.updateComponentTreeUI(this);
     }
     
-    public interface StopGameListener {
+    public interface UpdateGameListener {
         void stopGame();
     }
     

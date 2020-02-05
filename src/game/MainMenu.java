@@ -1,9 +1,10 @@
 package game;
 
+import collections.exceptions.ElementNotFoundException;
+import controllers.ClassificationManager;
 import controllers.GameNetwork;
 import controllers.MapReader;
 import game.hhgame.HauntedHouseGame;
-import game.hhgame.HauntedHouseGame.StopGameListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -30,10 +31,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import game.hhgame.HauntedHouseGame.UpdateGameListener;
+import java.util.Iterator;
 
 /**
  * Classe que representa o Menu Principal para o jogo.
@@ -41,7 +46,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * São disponibilizadas todas as funcionalidades a partir desta interface e 
  * respetivo conjunto de subinterfaces, Menu Play e Menu Classificações.
  */
-public class MainMenu implements StopGameListener {
+public class MainMenu implements UpdateGameListener {
     
     // GUI & Graficos
     public final GraphicsConfiguration GRAPHICS_CONFIG =
@@ -60,7 +65,8 @@ public class MainMenu implements StopGameListener {
     // Game Menu Panels
     private JPanel mainMenuPanel;
     private JPanel playGamePanel;
-    private JPanel loadMapPanel;
+    private JPanel loadClassificationsPanel;
+    private JTextArea classifTable;
     
     // Preferências Jogo
     private int difficulty;
@@ -68,10 +74,12 @@ public class MainMenu implements StopGameListener {
     private JTextField fileLabel;
     
     // Intâncias de Jogo
-    private GameNetwork<String> grafoJogo;
+    private MapReader mapReader;
+    private GameNetwork<String> gameNetwork;
+    private ClassificationManager classifManager;
+    
     private HauntedHouseGame manualGame;
-    //private GameSimulation simulateGame;
-    private StopGameListener stopGameListener;
+    private UpdateGameListener stopGameListener;
     
     /**
      * Redimensiona uma imagem para os tamanhos descritos.
@@ -99,10 +107,8 @@ public class MainMenu implements StopGameListener {
      * Construtor para o menu principal
      * 
      * @param name nome do jogo
-     * @param rows número de linhas para a matriz do jogo manual
-     * @param cols número de colunas para a matriz do jogo manual
      */
-    public MainMenu(String name, int rows, int cols) {
+    public MainMenu(String name) {
         /* Janela Principal */
         window = new JFrame(GRAPHICS_CONFIG);
         window.setLayout(new BorderLayout(0, 0));
@@ -121,12 +127,12 @@ public class MainMenu implements StopGameListener {
         background.add(mainMenuPanel, BorderLayout.CENTER);
         
         window.add(background);
+        window.pack();
         window.setVisible(true);
         
         /** Componentes do Jogo */
-        manualGame = new HauntedHouseGame(rows, cols, width, height);
-        // simulateGame = new GameSimulation(null);
-        stopGameListener = this;
+        this.mapReader = new MapReader();
+        this.stopGameListener = this;
     }
     
     /** ======================================================================
@@ -290,23 +296,25 @@ public class MainMenu implements StopGameListener {
      *  - Voltar ao Menu Principal
      */
     private void setupLoadClassificationsMenu() {
-        loadMapPanel = new JPanel(new GridBagLayout());
-        loadMapPanel.setOpaque(false);
+        loadClassificationsPanel = new JPanel(new GridBagLayout());
+        loadClassificationsPanel.setOpaque(false);
+        JScrollPane scrollTable;
         JButton backButton;
         Font font = new Font("Gabriola", Font.BOLD, 22);
         GridBagConstraints gbc = new GridBagConstraints();
         
         // Layout Configuration ==
         gbc.insets = new Insets(10, 0, 10, 0);
-        gbc.ipadx = 200;
-        gbc.ipady = 50;
-        gbc.gridheight = 2;
+        gbc.ipadx = 300;
+        gbc.ipady = 100;
         gbc.gridwidth = 3;
-        gbc.fill = GridBagConstraints.BOTH;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
         gbc.gridy = 0;
-        
-        // TABELA DE CLASSIFICAÇOES AQUI
+        classifTable = new JTextArea();
+        classifTable.setEditable(false);
+        scrollTable = new JScrollPane(classifTable);
+        loadClassificationsPanel.add(scrollTable, gbc);
         
         // Layout Configuration ==
         gbc.ipadx = 150;
@@ -318,7 +326,7 @@ public class MainMenu implements StopGameListener {
         backButton.setFont(font);
         backButton.setForeground(Color.white);
         backButton.addActionListener(new BackButtonListener());
-        loadMapPanel.add(backButton, gbc);
+        loadClassificationsPanel.add(backButton, gbc);
     }
     
     /**
@@ -339,11 +347,19 @@ public class MainMenu implements StopGameListener {
             int result = chooser.showSaveDialog(null); 
   
             if (result == JFileChooser.APPROVE_OPTION) {
-                MapReader mapReader = new MapReader();
-                if (mapReader.loadMapFromJSON(chooser.getSelectedFile().getPath())) {
-                    grafoJogo = mapReader.loadGameInformation(difficulty, "entrada");
-                    System.out.println("GAME MAP GRAPH: \n" + grafoJogo.toString());
-                    fileLabel.setText(chooser.getSelectedFile().getPath());
+                try {
+                    if (mapReader.loadMapFromJSON(chooser.getSelectedFile().getPath())) {
+                        fileLabel.setText(chooser.getSelectedFile().getPath());
+                        // inicializar instância de classificações
+                        classifManager = new ClassificationManager(
+                                    "files/classifications.json", 
+                                    mapReader.getMapModel().getName());
+                    } else {
+                        fileLabel.setText("Não foi possível inicializar o mapa através do ficheiro.");
+                    }
+                } catch (Exception exc) {
+                    System.err.println(exc);
+                    fileLabel.setText("Não foi possível inicializar o mapa através do ficheiro.");
                 }
             }
             // ERROR e CANCEL result
@@ -393,7 +409,7 @@ public class MainMenu implements StopGameListener {
     private class PlayActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (grafoJogo != null) {
+            if (mapReader.getMapModel() != null) {
                 background.removeAll();
                 playGamePanel.setOpaque(false);
                 background.add(playGamePanel);
@@ -408,9 +424,10 @@ public class MainMenu implements StopGameListener {
     private class LoadClassificationsActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (grafoJogo != null) {
+            if (mapReader.getMapModel() != null) {
                 background.removeAll();
-                background.add(loadMapPanel);
+                background.add(loadClassificationsPanel);
+                classifTable.setText(classifManager.getClassifications(difficulty));
                 SwingUtilities.updateComponentTreeUI(window);
             }
         }
@@ -424,15 +441,25 @@ public class MainMenu implements StopGameListener {
         public void actionPerformed(ActionEvent e) {
             String name = playerName.getText();
             if (name != null && !name.isEmpty()) {
-                manualGame.setupGame(playerName.getText(), difficulty, grafoJogo);
-                // adicionar o painel do jogo
-                background.removeAll();
-                background.add(manualGame, BorderLayout.CENTER);
-                // iniciar o jogo
-                manualGame.startGame(stopGameListener);
-                // atualizar o layout
-                SwingUtilities.updateComponentTreeUI(window);
-                manualGame.requestFocusInWindow();
+                
+                if (mapReader.getMapModel() != null) {
+                    // carregar grafo do mapa
+                    gameNetwork = mapReader.loadGameInformation(difficulty, "entrada");
+                    System.out.println("Detalhes sobre Grafo do Mapa: \n" 
+                            + gameNetwork.toString());
+                    // inicializar classe jogo
+                    manualGame = new HauntedHouseGame(width, height);
+                    manualGame.setupGame(playerName.getText(), gameNetwork);
+                    // adicionar o painel do jogo
+                    background.removeAll();
+                    background.add(manualGame, BorderLayout.CENTER);
+                    // iniciar o jogo
+                    manualGame.startGame(stopGameListener, classifManager);
+                    // atualizar o layout
+                    SwingUtilities.updateComponentTreeUI(window);
+                    manualGame.requestFocusInWindow();
+                    
+                }
             } else
                 playerName.requestFocusInWindow();
         }  
@@ -444,12 +471,92 @@ public class MainMenu implements StopGameListener {
     private class SimulateGameListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String name = playerName.getText();
-            if (name != null && !name.isEmpty())
-                // simulateGame.simulation();
-                difficulty = 0;
-            else
-                playerName.requestFocusInWindow();
+            if (mapReader.getMapModel() != null) {
+                // carregar grafo do mapa
+                gameNetwork = mapReader.loadGameInformation(difficulty, "entrada");
+                System.out.println("Detalhes sobre Grafo do Mapa: \n" 
+                        + gameNetwork.toString());
+                
+                // mostrar simulação
+                JPanel simulation = new JPanel(new GridBagLayout());
+                simulation.setOpaque(false);
+                JLabel route;
+                JScrollPane scroll;
+                JButton backButton;
+                Font font = new Font("Gabriola", Font.BOLD, 22);
+                GridBagConstraints gbc = new GridBagConstraints();
+
+                // Layout Configuration ==
+                gbc.insets = new Insets(10, 0, 10, 0);
+                gbc.ipadx = 300;
+                gbc.ipady = 100;
+                gbc.gridx = 0;
+                gbc.gridy = 0;
+                route = new JLabel();
+                route.setText(getSimulationPath());
+                scroll = new JScrollPane(route);
+                simulation.add(scroll, gbc);
+
+                // Layout Configuration ==
+                gbc.ipadx = 150;
+                gbc.ipady = 25;
+                gbc.gridy = 2;
+                // MainMenu Back Button
+                backButton = new JButton("Back to Play Menu");
+                backButton.setBackground(Color.darkGray);
+                backButton.setFont(font);
+                backButton.setForeground(Color.white);
+                backButton.addActionListener((ActionEvent ev) -> {
+                    background.removeAll();
+                    mainMenuPanel.setOpaque(false);
+                    background.add(playGamePanel);
+                    SwingUtilities.updateComponentTreeUI(window);
+                });
+                simulation.add(backButton, gbc);
+                
+                background.removeAll();
+                mainMenuPanel.setOpaque(false);
+                background.add(simulation);
+                SwingUtilities.updateComponentTreeUI(window);
+            }
+        }
+    }
+    
+    private String getSimulationPath() {
+        try {
+            String path = "<html><center>";
+            boolean finished = false;
+            
+            Iterator<String> pathIt = gameNetwork.iteratorShortestPath("entrada", "exterior");
+            
+            String room = pathIt.next();
+            gameNetwork.setNewPosition(room);
+            path = path + "Arrived at Entrance Room! Current HP: " 
+                    + gameNetwork.getCurrentHp() + "<br/><br/>";
+            while(!finished && pathIt.hasNext()){
+                room = pathIt.next();
+                
+                if(gameNetwork.isFinished(room)){
+                    path = path + "Arrived at Last Room " + room + " with " 
+                        + gameNetwork.getCurrentHp() + " HP!<br/>";
+                    finished = true;
+                } else if (gameNetwork.isMoveValid(room)) {
+                    if(!gameNetwork.setNewPosition(room)) {
+                        return "you can't win in this difficulty :(";
+                    } else {
+                        path = path + "Go through " + room + ". Your hp will be "
+                                + gameNetwork.getCurrentHp() + "<br/><br/>";
+                    }
+                } else {
+                    return "ERROR - Path to room '" + room + "' is invalid.";
+                }
+            }
+            
+            return path + "</center></html>";
+            
+        } catch (ElementNotFoundException exc) {
+            System.err.println(exc);
+            return "ERROR - Element in path is invalid (check console for debug)";
         }
     }
     
@@ -463,6 +570,6 @@ public class MainMenu implements StopGameListener {
     }
     
     public static void main(String[] args) {
-        MainMenu game = new MainMenu("HauntedHouseGame", 15, 17);
+        MainMenu game = new MainMenu("HauntedHouseGame");
     }
 }

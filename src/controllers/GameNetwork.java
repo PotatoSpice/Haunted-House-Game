@@ -1,13 +1,9 @@
 package controllers;
 
-import collections.exceptions.EmptyCollectionException;
 import collections.list.unordered.ArrayUnorderedList;
-import collections.queue.ArrayQueue;
 import interfaces.IGameNetwork;
-import models.ClassificationModel;
 
 import java.util.Iterator;
-import java.util.Queue;
 
 public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T> {
 
@@ -18,9 +14,7 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
     private final int difficulty;
     private T currentPosition;
     private int currentHp;
-
     private int moveCount = 0;
-    private ClassificationManager classificationManager; //A Iniciar no Construtor
 
     public GameNetwork(String mapName, T initialPosition) {
         super();
@@ -97,9 +91,10 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
         if (newPosition.equals("entrada"))
             currentPosition = newPosition;
         else if (!isFinished(newPosition)) {
-            currentHp = currentHp - adjMatrix[getIndex(currentPosition)][newIndex]*difficulty;
+            currentHp = currentHp - adjMatrix[getIndex(currentPosition)][newIndex] * difficulty;
             if (stillAlive()) {
                 currentPosition = newPosition;
+                moveCount++;
                 return true;
             } else {
                 return false;
@@ -110,7 +105,7 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
 
     @Override
     public boolean stillAlive() {
-        return (currentHp> 0);
+        return (currentHp > 0);
     }
 
     @Override
@@ -136,5 +131,9 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
     @Override
     public int getDifficulty() {
         return difficulty;
+    }
+    
+    public int getMoveCount() {
+        return moveCount;
     }
 }

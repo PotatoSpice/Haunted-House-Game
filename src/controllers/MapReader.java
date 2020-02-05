@@ -80,6 +80,7 @@ public class MapReader implements IMapReader {
         if (mapModel != null) {
             mapNetwork = new GameNetwork<>(difficulty, mapModel.getName(), 
                     initialPosition, mapModel.getPoints());
+            loadGraphWithRoom(mapModel.getRooms());
             return mapNetwork;
         }
         return null;
