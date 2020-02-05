@@ -36,7 +36,7 @@ public class GameSimulation {
         gameNetwork.setNewPosition(roomIterator.next());
         while(roomIterator.hasNext()){
             String room = roomIterator.next();
-            if(gameNetwork.isFinished(gameNetwork.getIndex(room))){
+            if(gameNetwork.isFinished(room)){
                 break;
             }
             if(gameNetwork.isMoveValid(room)){

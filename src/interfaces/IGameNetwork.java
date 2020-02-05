@@ -31,10 +31,9 @@ public interface IGameNetwork<T> extends  NetworkADT<T> {
     /**
      * Verifica, para cada "nova posição", se ainda se encontra vivo
      *
-     * @param remaniningHP quantidade vida que resta
      * @return true se estiver com vida acima de 0, false se esta tiver a 0 ou inferior
      */
-    boolean stillAlive(int remaniningHP);
+    boolean stillAlive();
 
     /**
      * @return os Pontos de Vida atualmente presentes
@@ -52,9 +51,9 @@ public interface IGameNetwork<T> extends  NetworkADT<T> {
     int getDifficulty();
 
     /**
-     * @param index índice da posição do aposento onde se encontra o jogador
+     *
      * @return true se o utilizador tiver atingido o índice do exterior, false se não
      */
-    boolean isFinished(int index);
+    boolean isFinished(T vertex);
 
 }

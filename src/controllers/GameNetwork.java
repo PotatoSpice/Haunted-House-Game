@@ -42,7 +42,7 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
         super();
         this.mapName = mapName;
         this.currentPosition = initialPosition;
-        this.difficulty = (difficulty > 0 && difficulty < 3 ? difficulty : DEFAULT_DIFFICULTY);
+        this.difficulty = (difficulty > 0 && difficulty <= 3 ? difficulty : DEFAULT_DIFFICULTY);
         this.currentHp = DEFAULT_HP;
     }
 
@@ -50,7 +50,7 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
         super();
         this.mapName = mapName;
         this.currentPosition = initialPosition;
-        this.difficulty = (difficulty > 0 && difficulty < 3 ? difficulty : DEFAULT_DIFFICULTY);
+        this.difficulty = (difficulty > 0 && difficulty <= 3 ? difficulty : DEFAULT_DIFFICULTY);
         this.currentHp = (startHP > 0 ? startHP : DEFAULT_HP);
     }
 
@@ -96,28 +96,26 @@ public class GameNetwork<T> extends DirectedNetwork<T> implements IGameNetwork<T
 
         if (newPosition.equals("entrada"))
             currentPosition = newPosition;
-        else if (!isFinished(newIndex)) {
+        else if (!isFinished(newPosition)) {
             currentHp = currentHp - adjMatrix[getIndex(currentPosition)][newIndex]*difficulty;
-            if (stillAlive(currentHp)) {
+            if (stillAlive()) {
                 currentPosition = newPosition;
-                moveCount++;
                 return true;
             } else {
                 return false;
             }
         }
-        moveCount++;
-        return true;
+        return false;
     }
 
     @Override
-    public boolean stillAlive(int remainingHP) {
-        return (remainingHP > 0);
+    public boolean stillAlive() {
+        return (currentHp> 0);
     }
 
     @Override
-    public boolean isFinished(int index) {
-        return index==numVertices-1;
+    public boolean isFinished(T vertex) {
+        return getIndex(vertex)==numVertices-1;
     }
 
     @Override
