@@ -144,9 +144,9 @@ public class DoubleLinkedList<T> implements ListADT<T> {
     }
 
     @Override
-    public boolean contains(T target) throws EmptyCollectionException {
+    public boolean contains(T target) {
         if (isEmpty()) {
-            throw new EmptyCollectionException();
+            return false;
         }
 
         if (target.equals(head.getElement())) {

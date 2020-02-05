@@ -12,7 +12,7 @@ public class TestClass {
 
         MapReader mapReader = new MapReader();
 
-        System.out.println(mapReader.loadMapFromJSON("./files/mapT.json"));
+        System.out.println(mapReader.loadMapFromJSON("./files/maps/mapT.json"));
         mapReader.loadGameInformation(3,"entrada");
         GameNetwork<String> gameNetwork=  mapReader.loadGraphWithRoom(mapReader.getMapModel().getRooms());
         System.out.println(mapReader.testOnlyTOBEDELETED());
@@ -22,7 +22,7 @@ public class TestClass {
         gameSimulation.simulation();
         System.out.println(gameSimulation.simulationString());
 
-        ClassificationManager classificationManager = new ClassificationManager("./files/classificationsTest","sexta-feira 13");
+        ClassificationManager classificationManager = new ClassificationManager("./files/classificationsTest.json","sexta-feira 13");
        // classificationManager.recordToFile(new ClassificationModel("sexta-feira 13","playerRand",16, 10, 3));
         System.out.println(classificationManager.getClassifications(3));
 

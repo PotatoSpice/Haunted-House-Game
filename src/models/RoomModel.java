@@ -36,19 +36,11 @@ public class RoomModel {
     }
     
     public boolean hasEntrance() {
-        try {
-            return roomConnections.contains("entrada");
-        } catch (EmptyCollectionException ex) {
-            return false;
-        }
+        return roomConnections.contains("entrada");
     }
     
     public boolean hasExterior() {
-        try {
-            return roomConnections.contains("exterior");
-        } catch (EmptyCollectionException ex) {
-            return false;
-        }
+        return roomConnections.contains("exterior");
     }
     
     @Override
